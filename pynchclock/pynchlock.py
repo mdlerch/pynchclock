@@ -20,8 +20,14 @@ def readJobs(file):
             hours[row[0]] = float(row[1])
         return hours
 
+def writeJobs(file, hours):
+    with open(file, "wb") as jobs_file:
+        jobs_writer = csv.writer(jobs_file)
+        for key, val in hours.items():
+            jobs_writer.writerow([key, val])
 
-hours = readJobs("/home/mike/.config/pynchclock/jobs.csv")
+jobfile = "/home/mike/.config/pynchclock/jobs.csv"
+hours = readJobs(jobfile)
 
 printHours(hours)
 
@@ -32,7 +38,12 @@ while (cur_job != 0):
     printHours(hours)
     start = time.time()
     next_job_i = input('Pick a job (0 to quit): ')
-    next_job = jobs[next_job_i]
+
+    if next_job_i == 0:
+        writeJobs(jobfile, hours)
+        exit()
+
+    next_job = jobs[next_job_i - 1]
     hours[cur_job] += time.time() - start
     cur_job = next_job
 
