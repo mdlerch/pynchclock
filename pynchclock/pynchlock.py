@@ -3,6 +3,12 @@ import csv
 import math
 import curses
 
+# change how things are stored:
+# one time called clock?
+# dictionary
+# current: string key of current job or integer index of current job?
+# timesheet: dictionary of job names and times
+
 def printHours(hours, stdscr, cur_job, active):
     i = 0
     for k,t in hours.iteritems():
@@ -39,15 +45,20 @@ def writeJobs(file, hours):
         for key, val in hours.items():
             jobs_writer.writerow([key, val])
 
-def selectJob(hours, stdscr, njobs, cur_job, jobfile):
+def selectJob(hours, stdscr, njobs, cur_job, jobfile, start):
     active = cur_job
     while(1):
         printHours(hours, stdscr, cur_job, active)
         c = stdscr.getch()
         if c == ord('q'):
+            if cur_job != njobs:
+                hours[hours.keys()[cur_job]] += time.time() - start
             writeJobs(jobfile, hours)
             curses.nocbreak(); stdscr.keypad(0); curses.echo(); curses.endwin()
             exit()
+        if c == ord('p'):
+            active = njobs
+            break
         elif c == curses.KEY_UP or (c < 256 and chr(c) == 'k'):
             if active > 0:
                 active = active - 1
@@ -71,12 +82,12 @@ jobs = hours.keys()
 njobs = len(jobs)
 cur_job = njobs
 
-cur_job = selectJob(hours, stdscr, njobs, cur_job, jobfile)
+cur_job = selectJob(hours, stdscr, njobs, cur_job, jobfile, time.time())
 
 while (1):
     start = time.time()
 
-    next_job = selectJob(hours, stdscr, njobs, cur_job, jobfile)
+    next_job = selectJob(hours, stdscr, njobs, cur_job, jobfile, start)
     if cur_job != njobs:
         hours[jobs[cur_job]] += time.time() - start
     cur_job = next_job
