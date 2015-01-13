@@ -34,17 +34,18 @@ printHours(hours)
 jobs = hours.keys()
 cur_job_i = input('Pick a job (0 to quit): ')
 cur_job = jobs[cur_job_i - 1]
-while (cur_job != 0):
+
+while (cur_job_i != 0):
     printHours(hours)
     start = time.time()
     next_job_i = input('Pick a job (0 to quit): ')
+    hours[cur_job] += time.time() - start
 
     if next_job_i == 0:
         writeJobs(jobfile, hours)
         exit()
 
     next_job = jobs[next_job_i - 1]
-    hours[cur_job] += time.time() - start
     cur_job = next_job
 
 
