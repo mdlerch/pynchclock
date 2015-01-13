@@ -8,7 +8,7 @@ def printHours(hours, stdscr, cur_job, active):
     for k,t in hours.iteritems():
         h = t / 3600.0
         m = (h - math.floor(h)) * 60
-        jobstring = "{3}.  {0}: {1:.0f} hours, {2:.2f} minutes".format(k, math.floor(h), m, i+1)
+        jobstring = "{3}.  {0}: {1:.0f} hours, {2:.0f} minutes".format(k, math.floor(h), m, i+1)
         if i == active:
             stdscr.addstr(i, 0, jobstring, curses.A_REVERSE)
         elif i == cur_job:
@@ -63,7 +63,7 @@ hours = readJobs(jobfile)
 
 # initialize curses
 stdscr = curses.initscr(); stdscr.keypad(1); curses.start_color()
-stdscr.refresh(); curses.noecho();
+stdscr.refresh(); curses.noecho(); curses.curs_set(0)
 winy, winx = stdscr.getmaxyx()
 curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
 
