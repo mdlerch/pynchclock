@@ -1,16 +1,20 @@
 import time
 import csv
 import math
+import curses
 
-def printHours(hours):
+def printHours(hours, stdscr, active):
     i = 1
-    print("")
     for k,t in hours.iteritems():
         h = t / 3600.0
         m = (h - math.floor(h)) * 60
-        print("{3}.  {0}: {1:.0f} hours, {2:.2f} minutes".format(k, math.floor(h), m, i))
+        jobstring = "{3}.  {0}: {1:.0f} hours, {2:.2f} minutes".format(k, math.floor(h), m, i)
+        if i == active:
+            stdscr.addstr(i - 1, 0, jobstring, curses.A_REVERSE)
+        else:
+            stdscr.addstr(i - 1, 0, jobstring)
         i += 1
-    print("")
+    stdscr.refresh()
 
 def readJobs(file):
     with open(file) as jobs_file:
@@ -29,24 +33,37 @@ def writeJobs(file, hours):
 jobfile = "/home/mike/.config/pynchclock/jobs.csv"
 hours = readJobs(jobfile)
 
-printHours(hours)
+stdscr = curses.initscr()
+curses.start_color()
+stdscr.refresh()
+curses.noecho()
+
+winy, winx = stdscr.getmaxyx()
+
+printHours(hours, stdscr, 0)
 
 jobs = hours.keys()
-cur_job_i = input('Pick a job (0 to quit): ')
-cur_job = jobs[cur_job_i - 1]
 
-while (cur_job_i != 0):
-    printHours(hours)
+stdscr.addstr(winy - 1, 0, "Pick a job (q to quit): ")
+cur_job_i = stdscr.getch()
+next_job_i = cur_job_i
+
+if cur_job_i == ord('q'):
+    exit()
+
+cur_job = jobs[int(chr(cur_job_i)) - 1]
+
+while (cur_job_i != ord('q')):
     start = time.time()
-    next_job_i = input('Pick a job (0 to quit): ')
+    printHours(hours, stdscr, int(chr(next_job_i)))
+
+    stdscr.addstr(winy - 1, 0, "Pick a job (q to quit): ")
+    next_job_i = stdscr.getch()
     hours[cur_job] += time.time() - start
 
-    if next_job_i == 0:
+    if next_job_i == ord('q'):
         writeJobs(jobfile, hours)
         exit()
 
-    next_job = jobs[next_job_i - 1]
+    next_job = jobs[int(chr(next_job_i)) - 1]
     cur_job = next_job
-
-
-
