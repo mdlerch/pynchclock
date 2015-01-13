@@ -79,7 +79,26 @@ def selectJob(clock, stdscr, jobfile, start):
             curses.nocbreak(); stdscr.keypad(0); curses.echo(); curses.endwin()
             exit()
         elif c == ord('a'):
-
+            maxy, maxx = stdscr.getmaxyx()
+            stdscr.addstr(maxy-1, 0, "New job: ")
+            curses.echo()
+            curses.curs_set(1)
+            newjob = stdscr.getstr(maxy-1, 10, 30)
+            clock['timesheet'][newjob] = 0.0
+            curses.noecho()
+            curses.curs_set(0)
+            stdscr.clear()
+        elif c == ord('d'):
+            maxy, maxx = stdscr.getmaxyx()
+            stdscr.addstr(maxy-1, 0, "Are you sure you wish to delete[y/n]? ")
+            curses.echo()
+            curses.curs_set(1)
+            c = stdscr.getch(maxy-1, 36)
+            if c == ord('y'):
+                clock['timesheet'].pop(clock['timesheet'].keys()[active])
+            curses.noecho()
+            curses.curs_set(0)
+            stdscr.clear()
 
     clock['cur_job'] = active
 
