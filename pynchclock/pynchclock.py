@@ -57,6 +57,9 @@ def updateTimes(clock, start):
     if clock['current'] != "None":
         clock['timesheet'][clock['current']] += time.time() - start
 
+def resetJobs(clock):
+    for j, t in clock['timesheet'].iteritems():
+        clock['timesheet'][j] = 0.0
 
 def eventLoop(clock, stdscr, jobfile):
     start = None
@@ -122,10 +125,28 @@ def eventLoop(clock, stdscr, jobfile):
             curses.curs_set(0)
             stdscr.clear()
             active = clock['order'][i]
+        elif c == ord('S'):
+            outfile = "/home/mike/work/time/card-" + \
+                      time.strftime("%Y-%m-%d") + ".csv"
+            writeJobs(outfile, clock)
+            maxy, maxx = stdscr.getmaxyx()
+            stdscr.addstr(maxy-1, 0, "Saved to " + outfile)
+        elif c == ord('R'):
+            maxy, maxx = stdscr.getmaxyx()
+            stdscr.addstr(maxy-1, 0, "Are you sure you wish to reset [y/n]? ")
+            curses.echo()
+            curses.curs_set(1)
+            c = stdscr.getch(maxy-1, 38)
+            if c == ord('y'):
+                resetJobs(clock)
+            curses.noecho()
+            curses.curs_set(0)
+            stdscr.clear()
+
 
 
 def main():
-    jobfile = "/home/mike/.config/pynchclock/jobs.csv"
+    jobfile = "/home/mike/work/time/jobs.csv"
     clock = readJobs(jobfile)
 
     # initialize curses
