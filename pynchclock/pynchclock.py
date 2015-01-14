@@ -112,9 +112,9 @@ def eventLoop(clock, stdscr, jobfile):
         elif c == ord('d'):
             maxy, maxx = stdscr.getmaxyx()
             if active == "None":
-                stdscr.addstr(maxy-1, 0, "Cannot delete None")
+                stdscr.addstr(maxy - 1, 0, "Cannot delete None")
 
-            stdscr.addstr(maxy-1, 0, "Are you sure you wish to delete[y/n]? ")
+            stdscr.addstr(maxy - 1, 0, "Are you sure you wish to delete[y/n]? ")
             curses.echo()
             curses.curs_set(1)
             c = stdscr.getch(maxy-1, 38)
@@ -126,11 +126,30 @@ def eventLoop(clock, stdscr, jobfile):
             stdscr.clear()
             active = clock['order'][i]
         elif c == ord('S'):
+            updateTimes(clock, start)
+            maxy, maxx = stdscr.getmaxyx()
+            curses.echo()
+            curses.curs_set(1)
             outfile = "/home/mike/work/time/card-" + \
                       time.strftime("%Y-%m-%d") + ".csv"
-            writeJobs(outfile, clock)
-            maxy, maxx = stdscr.getmaxyx()
-            stdscr.addstr(maxy-1, 0, "Saved to " + outfile)
+            stdscr.addstr(maxy - 1, 0, "Use file:" + outfile + " [y/n/(c)ancel]?")
+            c = stdscr.getch(maxy - 1, 66)
+            if c == ord('y'):
+                writeJobs(outfile, clock)
+                maxy, maxx = stdscr.getmaxyx()
+                stdscr.addstr(maxy-1, 0, "Saved to " + outfile)
+            elif c == ord('n'):
+                stdscr.clear()
+                printHours(clock, stdscr, active)
+                stdscr.addstr(maxy - 1, 0, "Filename: ")
+                outfile = stdscr.getstr(maxy - 1, 10, 30)
+                writeJobs(outfile, clock)
+                maxy, maxx = stdscr.getmaxyx()
+                stdscr.addstr(maxy-1, 0, "Saved to " + outfile)
+            curses.noecho()
+            curses.curs_set(0)
+            stdscr.clear()
+            active = "None"
         elif c == ord('R'):
             maxy, maxx = stdscr.getmaxyx()
             stdscr.addstr(maxy-1, 0, "Are you sure you wish to reset [y/n]? ")
