@@ -6,6 +6,7 @@ import curses
 def printHours(clock, stdscr, active):
     i = 0
     for job in clock['order']:
+
         t = clock['timesheet'][job]
         h = t / 3600.0
         m = (h - math.floor(h)) * 60
@@ -17,42 +18,49 @@ def printHours(clock, stdscr, active):
 
         if clock['order'][i] == active:
             stdscr.addstr(i, 0, jobstring, curses.A_REVERSE)
-        elif clock['order'][i] == clock['cur_job']:
+        elif clock['order'][i] == clock['current']:
             stdscr.addstr(i, 0, jobstring, curses.color_pair(1))
         else:
             stdscr.addstr(i, 0, jobstring)
+
         i += 1
+
     stdscr.refresh()
 
 def readJobs(file):
     with open(file) as jobs_file:
         jobs_reader = csv.reader(jobs_file)
+
         clock = { 'timesheet':{} }
         clock['order'] = []
+
         for row in jobs_reader:
             (clock['timesheet'])[row[0]] = float(row[1])
             clock['order'].append(row[0])
+
         clock['timesheet']['None'] = 0.0
-        clock['cur_job'] = "None"
+        clock['current'] = "None"
         clock['order'].append("None")
-        return clock
+
+    return clock
 
 def writeJobs(file, clock):
     with open(file, "wb") as jobs_file:
         jobs_writer = csv.writer(jobs_file)
+
         for job in clock['order']:
             if job != "None":
                 time = clock['timesheet'][job]
                 jobs_writer.writerow([job, time])
 
 def updateTimes(clock, start):
-    if clock['cur_job'] != "None":
-        clock['timesheet'][clock['cur_job']] += time.time() - start
+    if clock['current'] != "None":
+        clock['timesheet'][clock['current']] += time.time() - start
 
 
 def eventLoop(clock, stdscr, jobfile):
     start = None
-    active = clock['cur_job']
+    active = clock['current']
     while(1):
         i = clock['order'].index(active)
         printHours(clock, stdscr, active)
@@ -71,13 +79,13 @@ def eventLoop(clock, stdscr, jobfile):
             stdscr.clear()
         elif c == curses.KEY_ENTER or (c < 256 and chr(c) == "\n"):
             updateTimes(clock, start)
-            clock['cur_job'] = active
+            clock['current'] = active
             start = time.time()
             stdscr.clear()
         elif c == ord('p'):
             updateTimes(clock, start)
             active = "None"
-            clock['cur_job'] = active
+            clock['current'] = active
             stdscr.clear()
         elif c == ord('q'):
             updateTimes(clock, start)
@@ -126,6 +134,7 @@ def main():
     winy, winx = stdscr.getmaxyx()
     curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
 
-    clock['cur_job'] = "None"
+    # First job is none
+    clock['current'] = "None"
 
     eventLoop(clock, stdscr, jobfile)
