@@ -4,6 +4,7 @@ import math
 import curses
 
 def printHours(clock, stdscr, active):
+    stdscr.clear()
     i = 0
     for job in clock['order']:
 
@@ -28,14 +29,12 @@ def printHours(clock, stdscr, active):
     stdscr.refresh()
 
 def pauseScreen(stdscr):
-    stdscr.nodelay(0)
-    stdscr.clear()
+    # stdscr.nodelay(0)
     curses.echo()
     curses.curs_set(1)
 
 def restartScreen(stdscr):
-    stdscr.nodelay(1)
-    stdscr.clear()
+    # stdscr.nodelay(1)
     curses.noecho()
     curses.curs_set(0)
 
@@ -97,28 +96,18 @@ def eventLoop(clock, stdscr, jobfile):
     start = None
     active = clock['current']
 
-    maxy, maxx = stdscr.getmaxyx()
-
-    sym_c = 0
-    sym_i = 1
 
     while(1):
-        time.sleep(.05)
-        stdscr.clear()
+        maxy, maxx = stdscr.getmaxyx()
 
-        if sym_c > 21 or sym_c < 0:
-            sym_i *= -1
-
-        sym = '.' * ((sym_c + 3) / 3)
-        sym_c += sym_i
+        printHours(clock, stdscr, active)
 
         if clock['current'] == "None":
             stdscr.addstr(maxy - 1, 0, "||")
         else:
-            stdscr.addstr(maxy - 1, 0, clock['current'] + sym)
+            stdscr.addstr(maxy - 1, 0, "> " + clock['current'])
 
         i = clock['order'].index(active)
-        printHours(clock, stdscr, active)
         njobs = len(clock['timesheet'].keys())
         c = stdscr.getch()
 
@@ -130,24 +119,20 @@ def eventLoop(clock, stdscr, jobfile):
                 if clock['order'].index(active) > 0:
                     i = i - 1
                     active = clock['order'][i]
-                stdscr.clear()
             elif c == curses.KEY_DOWN or (c < 256 and chr(c) == 'j'):
                 if clock['order'].index(active) < njobs - 1:
                     i = i + 1
                     active = clock['order'][i]
-                stdscr.clear()
 
             # Selecting a job
             elif c == curses.KEY_ENTER or (c < 256 and chr(c) == "\n"):
                 updateTimes(clock, start)
                 clock['current'] = active
                 start = time.time()
-                stdscr.clear()
             elif c == ord('p'):
                 updateTimes(clock, start)
                 active = "None"
                 clock['current'] = active
-                stdscr.clear()
 
             # Add a new job
             elif c == ord('a'):
@@ -157,7 +142,6 @@ def eventLoop(clock, stdscr, jobfile):
                 printHours(clock, stdscr, active)
                 newJob(clock, stdscr)
                 restartScreen(stdscr)
-                stdscr.nodelay(1)
 
             # Delete a job
             elif c == ord('d'):
@@ -171,14 +155,13 @@ def eventLoop(clock, stdscr, jobfile):
             elif c == ord('S'):
                 pauseScreen(stdscr)
                 updateTimes(clock, start)
-                outfile = "/home/mike/work/time/jobs.csv"
+                outfile = "jobs.csv"
                 stdscr.addstr(maxy - 1, 0, "Use file:" + outfile + " [y/n/(c)ancel]?")
-                c = stdscr.getch(maxy - 1, 56)
+                c = stdscr.getch(maxy - 1, 15)
                 if c == ord('y'):
                     writeJobs(outfile, clock)
                     stdscr.addstr(maxy-1, 0, "Saved to " + outfile)
                 elif c == ord('n'):
-                    stdscr.clear()
                     printHours(clock, stdscr, active)
                     stdscr.addstr(maxy - 1, 0, "Filename: ")
                     outfile = stdscr.getstr(maxy - 1, 10, 30)
@@ -204,7 +187,7 @@ def eventLoop(clock, stdscr, jobfile):
                 exit()
 
 def main():
-    jobfile = "/home/mike/work/time/jobs.csv"
+    jobfile = "jobs.csv"
     clock = readJobs(jobfile)
 
     # initialize curses
@@ -212,7 +195,8 @@ def main():
     stdscr.keypad(1)
     curses.start_color()
     curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
-    stdscr.nodelay(1)
+
+    stdscr.nodelay(0)
 
     restartScreen(stdscr)
 
