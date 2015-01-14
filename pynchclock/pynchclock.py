@@ -100,22 +100,23 @@ def selectJob(clock, stdscr, jobfile, start):
 
     clock['cur_job'] = active
 
-jobfile = "/home/mike/.config/pynchclock/jobs.csv"
-clock = readJobs(jobfile)
+def main():
+    jobfile = "/home/mike/.config/pynchclock/jobs.csv"
+    clock = readJobs(jobfile)
 
-# initialize curses
-stdscr = curses.initscr(); stdscr.keypad(1); curses.start_color()
-stdscr.refresh(); curses.noecho(); curses.curs_set(0)
-winy, winx = stdscr.getmaxyx()
-curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
+    # initialize curses
+    stdscr = curses.initscr(); stdscr.keypad(1); curses.start_color()
+    stdscr.refresh(); curses.noecho(); curses.curs_set(0)
+    winy, winx = stdscr.getmaxyx()
+    curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
 
-jobs = clock['timesheet'].keys()
-njobs = len(jobs)
-clock['cur_job'] = "None"
+    jobs = clock['timesheet'].keys()
+    njobs = len(jobs)
+    clock['cur_job'] = "None"
 
-selectJob(clock, stdscr, jobfile, time.time())
+    selectJob(clock, stdscr, jobfile, time.time())
 
-while (1):
-    start = time.time()
+    while (1):
+        start = time.time()
 
-    selectJob(clock, stdscr, jobfile, start)
+        selectJob(clock, stdscr, jobfile, start)
