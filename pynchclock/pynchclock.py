@@ -27,6 +27,38 @@ def printHours(clock, stdscr, active):
 
     stdscr.refresh()
 
+def pauseScreen(stdscr):
+    stdscr.nodelay(0)
+    stdscr.clear()
+    curses.echo()
+    curses.curs_set(1)
+
+def restartScreen(stdscr):
+    stdscr.nodelay(1)
+    stdscr.clear()
+    curses.noecho()
+    curses.curs_set(0)
+
+def newJob(clock, stdscr):
+    maxy, maxx = stdscr.getmaxyx()
+    stdscr.addstr(maxy - 1, 0, "New job: ")
+    newjob = stdscr.getstr(maxy - 1, 9, 30)
+    clock['timesheet'][newjob] = 0.0
+    clock['order'].remove("None")
+    clock['order'].append(newjob)
+    clock['order'].append("None")
+
+def deleteJob(clock, stdscr, active):
+    maxy, maxx = stdscr.getmaxyx()
+    if active == "None":
+        stdscr.addstr(maxy - 1, 0, "Cannot delete None")
+    stdscr.addstr(maxy - 1, 0, "Are you sure you wish to delete[y/n]? ")
+    c = stdscr.getch(maxy - 1, 38)
+    if c == ord('y'):
+        clock['timesheet'].pop(active)
+        clock['order'].remove(active)
+
+
 def readJobs(file):
     with open(file) as jobs_file:
         jobs_reader = csv.reader(jobs_file)
@@ -64,115 +96,125 @@ def resetJobs(clock):
 def eventLoop(clock, stdscr, jobfile):
     start = None
     active = clock['current']
+
+    maxy, maxx = stdscr.getmaxyx()
+
+    sym_c = 0
+    sym_i = 1
+
     while(1):
+        time.sleep(.05)
+        stdscr.clear()
+
+        if sym_c > 21 or sym_c < 0:
+            sym_i *= -1
+
+        sym = '.' * ((sym_c + 3) / 3)
+        sym_c += sym_i
+
+        if clock['current'] == "None":
+            stdscr.addstr(maxy - 1, 0, "||")
+        else:
+            stdscr.addstr(maxy - 1, 0, clock['current'] + sym)
+
         i = clock['order'].index(active)
         printHours(clock, stdscr, active)
         njobs = len(clock['timesheet'].keys())
         c = stdscr.getch()
 
-        if c == curses.KEY_UP or (c < 256 and chr(c) == 'k'):
-            if clock['order'].index(active) > 0:
-                i = i - 1
-                active = clock['order'][i]
-            stdscr.clear()
-        elif c == curses.KEY_DOWN or (c < 256 and chr(c) == 'j'):
-            if clock['order'].index(active) < njobs - 1:
-                i = i + 1
-                active = clock['order'][i]
-            stdscr.clear()
-        elif c == curses.KEY_ENTER or (c < 256 and chr(c) == "\n"):
-            updateTimes(clock, start)
-            clock['current'] = active
-            start = time.time()
-            stdscr.clear()
-        elif c == ord('p'):
-            updateTimes(clock, start)
-            active = "None"
-            clock['current'] = active
-            stdscr.clear()
-        elif c == ord('q'):
-            updateTimes(clock, start)
-            writeJobs(jobfile, clock)
-            curses.nocbreak(); stdscr.keypad(0); curses.echo(); curses.endwin()
-            exit()
-        elif c == ord('a'):
-            maxy, maxx = stdscr.getmaxyx()
-            stdscr.addstr(maxy-1, 0, "New job: ")
-            curses.echo()
-            curses.curs_set(1)
-            newjob = stdscr.getstr(maxy-1, 9, 30)
-            clock['timesheet'][newjob] = 0.0
-            clock['order'].remove("None")
-            clock['order'].append(newjob)
-            clock['order'].append("None")
-            curses.noecho()
-            curses.curs_set(0)
-            stdscr.clear()
-            active = newjob
-        elif c == ord('d'):
-            maxy, maxx = stdscr.getmaxyx()
-            if active == "None":
-                stdscr.addstr(maxy - 1, 0, "Cannot delete None")
+        # with nodelay, getch returns curses.ERR
+        if c != curses.ERR:
 
-            stdscr.addstr(maxy - 1, 0, "Are you sure you wish to delete[y/n]? ")
-            curses.echo()
-            curses.curs_set(1)
-            c = stdscr.getch(maxy-1, 38)
-            if c == ord('y'):
-                clock['timesheet'].pop(active)
-                clock['order'].remove(active)
-            curses.noecho()
-            curses.curs_set(0)
-            stdscr.clear()
-            active = clock['order'][i]
-        elif c == ord('S'):
-            updateTimes(clock, start)
-            maxy, maxx = stdscr.getmaxyx()
-            curses.echo()
-            curses.curs_set(1)
-            outfile = "/home/mike/work/time/card-" + \
-                      time.strftime("%Y-%m-%d") + ".csv"
-            stdscr.addstr(maxy - 1, 0, "Use file:" + outfile + " [y/n/(c)ancel]?")
-            c = stdscr.getch(maxy - 1, 66)
-            if c == ord('y'):
-                writeJobs(outfile, clock)
-                maxy, maxx = stdscr.getmaxyx()
-                stdscr.addstr(maxy-1, 0, "Saved to " + outfile)
-            elif c == ord('n'):
+            ## Moving up or down
+            if c == curses.KEY_UP or (c < 256 and chr(c) == 'k'):
+                if clock['order'].index(active) > 0:
+                    i = i - 1
+                    active = clock['order'][i]
                 stdscr.clear()
+            elif c == curses.KEY_DOWN or (c < 256 and chr(c) == 'j'):
+                if clock['order'].index(active) < njobs - 1:
+                    i = i + 1
+                    active = clock['order'][i]
+                stdscr.clear()
+
+            # Selecting a job
+            elif c == curses.KEY_ENTER or (c < 256 and chr(c) == "\n"):
+                updateTimes(clock, start)
+                clock['current'] = active
+                start = time.time()
+                stdscr.clear()
+            elif c == ord('p'):
+                updateTimes(clock, start)
+                active = "None"
+                clock['current'] = active
+                stdscr.clear()
+
+            # Add a new job
+            elif c == ord('a'):
+                updateTimes(clock, start)
+                clock['current'] = "None"
+                pauseScreen(stdscr)
                 printHours(clock, stdscr, active)
-                stdscr.addstr(maxy - 1, 0, "Filename: ")
-                outfile = stdscr.getstr(maxy - 1, 10, 30)
-                writeJobs(outfile, clock)
-                maxy, maxx = stdscr.getmaxyx()
-                stdscr.addstr(maxy-1, 0, "Saved to " + outfile)
-            curses.noecho()
-            curses.curs_set(0)
-            stdscr.clear()
-            active = "None"
-        elif c == ord('R'):
-            maxy, maxx = stdscr.getmaxyx()
-            stdscr.addstr(maxy-1, 0, "Are you sure you wish to reset [y/n]? ")
-            curses.echo()
-            curses.curs_set(1)
-            c = stdscr.getch(maxy-1, 38)
-            if c == ord('y'):
-                resetJobs(clock)
-            curses.noecho()
-            curses.curs_set(0)
-            stdscr.clear()
+                newJob(clock, stdscr)
+                restartScreen(stdscr)
+                stdscr.nodelay(1)
 
+            # Delete a job
+            elif c == ord('d'):
+                pauseScreen(stdscr)
+                printHours(clock, stdscr, active)
+                deleteJob(clock, stdscr, active)
+                restartScreen(stdscr)
+                active = clock['order'][i]
 
+            # Save timesheet
+            elif c == ord('S'):
+                pauseScreen(stdscr)
+                updateTimes(clock, start)
+                outfile = "/home/mike/work/time/jobs.csv"
+                stdscr.addstr(maxy - 1, 0, "Use file:" + outfile + " [y/n/(c)ancel]?")
+                c = stdscr.getch(maxy - 1, 56)
+                if c == ord('y'):
+                    writeJobs(outfile, clock)
+                    stdscr.addstr(maxy-1, 0, "Saved to " + outfile)
+                elif c == ord('n'):
+                    stdscr.clear()
+                    printHours(clock, stdscr, active)
+                    stdscr.addstr(maxy - 1, 0, "Filename: ")
+                    outfile = stdscr.getstr(maxy - 1, 10, 30)
+                    writeJobs(outfile, clock)
+                    stdscr.addstr(maxy-1, 0, "Saved to " + outfile)
+                restartScreen(stdscr)
+                active = "None"
+
+            # Reset all jobs to 0.0 hours
+            elif c == ord('R'):
+                pauseScreen()
+                stdscr.addstr(maxy-1, 0, "Are you sure you wish to reset [y/n]? ")
+                c = stdscr.getch(maxy-1, 38)
+                if c == ord('y'):
+                    resetJobs(clock)
+                restartScreen(stdscr)
+
+            # Quit the program
+            elif c == ord('q'):
+                updateTimes(clock, start)
+                writeJobs(jobfile, clock)
+                curses.nocbreak(); stdscr.keypad(0); curses.echo(); curses.endwin()
+                exit()
 
 def main():
     jobfile = "/home/mike/work/time/jobs.csv"
     clock = readJobs(jobfile)
 
     # initialize curses
-    stdscr = curses.initscr(); stdscr.keypad(1); curses.start_color()
-    stdscr.refresh(); curses.noecho(); curses.curs_set(0)
-    winy, winx = stdscr.getmaxyx()
+    stdscr = curses.initscr()
+    stdscr.keypad(1)
+    curses.start_color()
     curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
+    stdscr.nodelay(1)
+
+    restartScreen(stdscr)
 
     # First job is none
     clock['current'] = "None"
