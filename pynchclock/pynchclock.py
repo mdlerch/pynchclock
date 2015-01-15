@@ -5,15 +5,26 @@ import curses
 
 def printHours(clock, stdscr, active):
     stdscr.clear()
+    job_name_length = []
+    for job in clock['order']:
+        job_name_length.append(len(job))
+    spacing = max(job_name_length)
+
     i = 0
+    shift = 1
     for job in clock['order']:
 
         t = clock['timesheet'][job]
         h = t / 3600.0
         m = (h - math.floor(h)) * 60
 
+        if i+1 > 9:
+            shift = 0
+
+        jobname = job.ljust(spacing + shift)
+
         if job != "None":
-            jobstring = "{3}. {0}: {1:.0f} hours, {2:.0f} minutes".format(job, math.floor(h), m, i+1)
+            jobstring = "{3}. {0}|  {1:02.0f}:{2:02.0f}".format(jobname, math.floor(h), m, i+1)
         else:
             jobstring = "{1}. {0}".format(job, i+1)
 
@@ -157,7 +168,7 @@ def eventLoop(clock, stdscr, jobfile):
                 updateTimes(clock, start)
                 outfile = "jobs.csv"
                 stdscr.addstr(maxy - 1, 0, "Use file:" + outfile + " [y/n/(c)ancel]?")
-                c = stdscr.getch(maxy - 1, 15)
+                c = stdscr.getch(maxy - 1, 35)
                 if c == ord('y'):
                     writeJobs(outfile, clock)
                     stdscr.addstr(maxy-1, 0, "Saved to " + outfile)
