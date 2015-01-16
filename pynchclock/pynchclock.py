@@ -26,7 +26,7 @@ def printHours(clock, stdscr, active):
         if job != "None":
             jobstring = "{3}. {0}|  {1:02.0f}:{2:02.0f}".format(jobname, math.floor(h), m, i+1)
         else:
-            jobstring = "{1}. {0}".format(job, i+1)
+            jobstring = "{1}. {0}".format(jobname, i+1)
 
         if clock['order'][i] == active:
             stdscr.addstr(i, 0, jobstring, curses.A_REVERSE)
