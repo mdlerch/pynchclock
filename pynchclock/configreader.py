@@ -1,8 +1,8 @@
 import ConfigParser
 import os.path
 
-
-settings = ConfigParser.ConfigParser({'savedir': '$HOME',
+default_save = os.path.expanduser("~")
+settings = ConfigParser.ConfigParser({'savedir': default_save,
                                       'jobsfile': None})
 
 
