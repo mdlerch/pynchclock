@@ -8,7 +8,7 @@ Install with `pip install git+git://github.com/mdlerch/pynchclock.git`
 
 It's pretty usable _for me_.  More configuration will eventually be available.
 
-### Configuration ###
+#### Configuration ####
 
 The default config file is `$HOME/.config/pynchclock/pynchclockrc`
 
@@ -31,7 +31,7 @@ time spent in that job (in seconds).
 
 That's all the configuration that is currently available.
 
-### Keybindings ###
+#### Keybindings ####
 
 Enter: start timing on a job.
 
@@ -47,6 +47,6 @@ S: save current times to a file.
 
 R: reset all job times to 0.
 
-### Details ###
+#### Details ####
 
 python 2.7
