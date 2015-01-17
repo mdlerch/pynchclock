@@ -2,6 +2,9 @@ import time
 import csv
 import math
 import curses
+import configreader
+import clioptions
+
 
 def printHours(clock, stdscr, active):
     stdscr.clear()
@@ -11,22 +14,22 @@ def printHours(clock, stdscr, active):
     spacing = max(job_name_length)
 
     i = 0
-    shift = 1
     for job in clock['order']:
 
         t = clock['timesheet'][job]
         h = t / 3600.0
         m = (h - math.floor(h)) * 60
 
+        shift = 3
         if i+1 > 9:
-            shift = 0
+            shift = shift - 1
 
-        jobname = job.ljust(spacing + shift)
+        jobname = job.ljust(spacing + shift, '.')
 
         if job != "None":
-            jobstring = "{3}. {0}|  {1:02.0f}:{2:02.0f}".format(jobname, math.floor(h), m, i+1)
+            jobstring = "{3}. {0}{1:02.0f}:{2:02.0f}".format(jobname, math.floor(h), m, i+1)
         else:
-            jobstring = "{1}. {0}".format(jobname, i+1)
+            jobstring = "{1}. {0}".format(job, i+1)
 
         if clock['order'][i] == active:
             stdscr.addstr(i, 0, jobstring, curses.A_REVERSE)
@@ -39,15 +42,18 @@ def printHours(clock, stdscr, active):
 
     stdscr.refresh()
 
+
 def pauseScreen(stdscr):
     # stdscr.nodelay(0)
     curses.echo()
     curses.curs_set(1)
 
+
 def restartScreen(stdscr):
     # stdscr.nodelay(1)
     curses.noecho()
     curses.curs_set(0)
+
 
 def newJob(clock, stdscr):
     maxy, maxx = stdscr.getmaxyx()
@@ -57,6 +63,7 @@ def newJob(clock, stdscr):
     clock['order'].remove("None")
     clock['order'].append(newjob)
     clock['order'].append("None")
+
 
 def deleteJob(clock, stdscr, active):
     maxy, maxx = stdscr.getmaxyx()
@@ -86,6 +93,7 @@ def readJobs(file):
 
     return clock
 
+
 def writeJobs(file, clock):
     with open(file, "wb") as jobs_file:
         jobs_writer = csv.writer(jobs_file)
@@ -95,18 +103,20 @@ def writeJobs(file, clock):
                 time = clock['timesheet'][job]
                 jobs_writer.writerow([job, time])
 
+
 def updateTimes(clock, start):
     if clock['current'] != "None":
         clock['timesheet'][clock['current']] += time.time() - start
+
 
 def resetJobs(clock):
     for j, t in clock['timesheet'].iteritems():
         clock['timesheet'][j] = 0.0
 
-def eventLoop(clock, stdscr, jobfile):
+
+def eventLoop(clock, stdscr, jobsfile):
     start = None
     active = clock['current']
-
 
     while(1):
         maxy, maxx = stdscr.getmaxyx()
@@ -125,7 +135,7 @@ def eventLoop(clock, stdscr, jobfile):
         # with nodelay, getch returns curses.ERR
         if c != curses.ERR:
 
-            ## Moving up or down
+            # Moving up or down
             if c == curses.KEY_UP or (c < 256 and chr(c) == 'k'):
                 if clock['order'].index(active) > 0:
                     i = i - 1
@@ -193,13 +203,22 @@ def eventLoop(clock, stdscr, jobfile):
             # Quit the program
             elif c == ord('q'):
                 updateTimes(clock, start)
-                writeJobs(jobfile, clock)
+                writeJobs(jobsfile, clock)
                 curses.nocbreak(); stdscr.keypad(0); curses.echo(); curses.endwin()
                 exit()
 
+
 def main():
-    jobfile = "jobs.csv"
-    clock = readJobs(jobfile)
+    opts = clioptions.parseArgs()
+    settings = configreader.read_config(opts['configfile'])
+
+    savedir = settings['savedir']
+
+    if settings['jobsfile'] == None:
+        clock = {'order': ['MyJob', 'None'],
+                 'timesheet': {'MyJob': 0, 'None': 0}}
+    else:
+        clock = readJobs(settings['jobsfile'])
 
     # initialize curses
     stdscr = curses.initscr()
@@ -214,4 +233,4 @@ def main():
     # First job is none
     clock['current'] = "None"
 
-    eventLoop(clock, stdscr, jobfile)
+    eventLoop(clock, stdscr, settings['jobsfile'])
