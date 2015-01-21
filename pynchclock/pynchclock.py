@@ -5,6 +5,8 @@ import curses
 import configreader
 import clioptions
 
+def is_enter(c):
+    return c == curses.KEY_ENTER or (c < 256 and chr(c) == "\n")
 
 def printHours(clock, stdscr, active):
     stdscr.clear()
@@ -146,7 +148,7 @@ def eventLoop(clock, stdscr, jobsfile):
                     active = clock['order'][i]
 
             # Selecting a job
-            elif c == curses.KEY_ENTER or (c < 256 and chr(c) == "\n"):
+            elif is_enter(c):
                 updateTimes(clock, start)
                 clock['current'] = active
                 start = time.time()
@@ -177,9 +179,9 @@ def eventLoop(clock, stdscr, jobsfile):
                 pauseScreen(stdscr)
                 updateTimes(clock, start)
                 outfile = "jobs.csv"
-                stdscr.addstr(maxy - 1, 0, "Use file:" + outfile + " [y/n/(c)ancel]?")
-                c = stdscr.getch(maxy - 1, 35)
-                if c == ord('y'):
+                stdscr.addstr(maxy - 1, 0, "Use file:" + outfile + " [(y)es]/(n)o/(c)ancel?")
+                c = stdscr.getch(maxy - 1, 40)
+                if is_enter(c):
                     writeJobs(outfile, clock)
                     stdscr.addstr(maxy-1, 0, "Saved to " + outfile)
                 elif c == ord('n'):
