@@ -2,6 +2,7 @@ import time
 import csv
 import math
 import curses
+import datetime
 import configreader
 import clioptions
 
@@ -45,13 +46,12 @@ def printHours(clock, stdscr, active):
     stdscr.refresh()
 
 
-def pauseScreen(stdscr):
-    # stdscr.nodelay(0)
+def pauseScreen():
     curses.echo()
     curses.curs_set(1)
 
 
-def restartScreen(stdscr):
+def restartScreen():
     # stdscr.nodelay(1)
     curses.noecho()
     curses.curs_set(0)
@@ -82,7 +82,7 @@ def readJobs(file):
     with open(file) as jobs_file:
         jobs_reader = csv.reader(jobs_file)
 
-        clock = { 'timesheet':{} }
+        clock = {'timesheet': {}}
         clock['order'] = []
 
         for row in jobs_reader:
@@ -96,14 +96,27 @@ def readJobs(file):
     return clock
 
 
-def writeJobs(file, clock):
-    with open(file, "wb") as jobs_file:
+def writeJobs(jfile, clock):
+    with open(jfile, "wb") as jobs_file:
         jobs_writer = csv.writer(jobs_file)
 
         for job in clock['order']:
             if job != "None":
-                time = clock['timesheet'][job]
-                jobs_writer.writerow([job, time])
+                jobtime = clock['timesheet'][job]
+                jobs_writer.writerow([job, jobtime])
+
+
+def writeTimesheet(tfile, clock, writetime):
+    year = writetime.strftime("%Y")
+    month = writetime.strftime("%m")
+    day = writetime.strftime("%d")
+    with open(tfile, "a") as timesheet_file:
+        times_writer = csv.writer(timesheet_file)
+
+        for job in clock['order']:
+            if job != "None":
+                jobtime = clock['timesheet'][job]
+                times_writer.writerow([year, month, day, job, jobtime])
 
 
 def updateTimes(clock, start):
@@ -116,19 +129,29 @@ def resetJobs(clock):
         clock['timesheet'][j] = 0.0
 
 
-def eventLoop(clock, stdscr, jobsfile):
+def eventLoop(clock, stdscr, jobsfile, savefile):
     start = None
     active = clock['current']
+    message = None
+    icon_shift = 1
 
-    while(1):
+    while 1:
         maxy, maxx = stdscr.getmaxyx()
 
         printHours(clock, stdscr, active)
 
+        if message:
+            stdscr.addstr(maxy - 1, 0, message)
+            icon_shift = 2
+
         if clock['current'] == "None":
-            stdscr.addstr(maxy - 1, 0, "||")
+            stdscr.addstr(maxy - icon_shift, 0, "||")
         else:
-            stdscr.addstr(maxy - 1, 0, "> " + clock['current'])
+            stdscr.addstr(maxy - icon_shift, 0, "> " + clock['current'])
+
+        message = None
+        icon_shift = 1
+
 
         i = clock['order'].index(active)
         njobs = len(clock['timesheet'].keys())
@@ -161,46 +184,64 @@ def eventLoop(clock, stdscr, jobsfile):
             elif c == ord('a'):
                 updateTimes(clock, start)
                 clock['current'] = "None"
-                pauseScreen(stdscr)
+                pauseScreen()
                 printHours(clock, stdscr, active)
                 newJob(clock, stdscr)
-                restartScreen(stdscr)
+                restartScreen()
 
             # Delete a job
             elif c == ord('d'):
-                pauseScreen(stdscr)
+                pauseScreen()
                 printHours(clock, stdscr, active)
                 deleteJob(clock, stdscr, active)
-                restartScreen(stdscr)
+                restartScreen()
                 active = clock['order'][i]
 
-            # Save timesheet
-            elif c == ord('S'):
-                pauseScreen(stdscr)
+            # Update timesheet
+            elif c == ord('U'):
+                pauseScreen()
                 updateTimes(clock, start)
-                outfile = "jobs.csv"
-                stdscr.addstr(maxy - 1, 0, "Use file:" + outfile + " [(y)es]/(n)o/(c)ancel?")
-                c = stdscr.getch(maxy - 1, 40)
+                outfile = jobsfile
+
+                if outfile is None:
+                    c = ord('n')
+                else:
+                    stdscr.addstr(maxy - 1, 0, "Use file:" + outfile + " [(y)es]/(n)o/(c)ancel?")
+                    c = stdscr.getch(maxy - 1, 40)
+
                 if is_enter(c):
                     writeJobs(outfile, clock)
-                    stdscr.addstr(maxy-1, 0, "Saved to " + outfile)
+                    message = "Updated " + outfile
                 elif c == ord('n'):
                     printHours(clock, stdscr, active)
                     stdscr.addstr(maxy - 1, 0, "Filename: ")
                     outfile = stdscr.getstr(maxy - 1, 10, 30)
                     writeJobs(outfile, clock)
-                    stdscr.addstr(maxy-1, 0, "Saved to " + outfile)
-                restartScreen(stdscr)
+                    message = "Updated " + outfile
+                restartScreen()
+                clock['current'] = "None"
                 active = "None"
+
+            # Save timesheet
+            elif c == ord('S'):
+                pauseScreen()
+                updateTimes(clock, start)
+                writetime = datetime.datetime.now()
+                writetime = writetime - datetime.timedelta(days = 1)
+                writeTimesheet(savefile, clock, writetime)
+                clock['current'] = "None"
+                active = "None"
+                message = "Timesheet appended to " + savefile
+                restartScreen()
 
             # Reset all jobs to 0.0 hours
             elif c == ord('R'):
-                pauseScreen(stdscr)
+                pauseScreen()
                 stdscr.addstr(maxy-1, 0, "Are you sure you wish to reset [y/n]? ")
                 c = stdscr.getch(maxy-1, 38)
                 if c == ord('y'):
                     resetJobs(clock)
-                restartScreen(stdscr)
+                restartScreen()
 
             # Quit the program
             elif c == ord('q'):
@@ -214,7 +255,7 @@ def main():
     opts = clioptions.parseArgs()
     settings = configreader.read_config(opts['configfile'])
 
-    savedir = settings['savedir']
+    savefile = settings['savefile']
 
     if settings['jobsfile'] == None:
         clock = {'order': ['MyJob', 'None'],
@@ -230,9 +271,9 @@ def main():
 
     stdscr.nodelay(0)
 
-    restartScreen(stdscr)
+    restartScreen()
 
     # First job is none
     clock['current'] = "None"
 
-    eventLoop(clock, stdscr, settings['jobsfile'])
+    eventLoop(clock, stdscr, settings['jobsfile'], settings['savefile'])

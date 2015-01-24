@@ -2,31 +2,32 @@ import ConfigParser
 import os.path
 
 default_save = os.path.expanduser("~")
-settings = ConfigParser.ConfigParser({'savedir': default_save,
-                                      'jobsfile': None})
+pc_settings = ConfigParser.ConfigParser({'savedir': default_save,
+                                         'jobsfile': None,
+                                         'savefile': "timesheet.csv"})
 
 
 def read_config(configfile):
-    sett = {}
+    settings = {}
     try:
-        settings.read(configfile)
+        pc_settings.read(configfile)
         section = "main"
-        options = settings.options(section)
+        options = pc_settings.options(section)
         for option in options:
             try:
-                sett[option] = settings.get(section, option)
+                settings[option] = pc_settings.get(section, option)
             except:
                 print("Exception on option " + option)
-                sett[option] = None
+                settings[option] = None
     except:
         print("Issue with config file" + configfile + ".  May not exist")
 
-    if sett['jobsfile'] is not None and not os.path.isfile(sett['jobsfile']):
+    if settings['jobsfile'] is not None and not os.path.isfile(settings['jobsfile']):
         print("jobsfile does not exist")
-        sett['jobsfile'] = None
+        settings['jobsfile'] = None
 
-    if sett['savedir'] is not None and not os.path.exists(sett['savedir']):
+    if settings['savedir'] is not None and not os.path.exists(settings['savedir']):
         print("savedir does not exist")
-        sett['savedir'] = None
+        settings['savedir'] = None
 
-    return sett
+    return settings
