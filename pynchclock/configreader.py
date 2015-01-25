@@ -8,6 +8,9 @@ pc_settings = ConfigParser.ConfigParser({'savedir': default_save,
 
 
 def read_config(configfile):
+    if configfile is None:
+        return pc_settings
+
     settings = {}
     try:
         pc_settings.read(configfile)

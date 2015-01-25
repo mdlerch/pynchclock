@@ -3,6 +3,7 @@ import csv
 import math
 import curses
 import datetime
+import os.path
 import configreader
 import clioptions
 
@@ -253,7 +254,13 @@ def eventLoop(clock, stdscr, jobsfile, savefile):
 
 def main():
     opts = clioptions.parseArgs()
-    settings = configreader.read_config(opts['configfile'])
+
+    if opts['configfile'] is None:
+        settings = {'savedir': os.path.expanduser("~"),
+                    'jobsfile': None,
+                    'savefile': "timesheet.csv"}
+    else:
+        settings = configreader.read_config(opts['configfile'])
 
     savefile = settings['savefile']
 
