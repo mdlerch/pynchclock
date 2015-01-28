@@ -1,36 +1,38 @@
 import ConfigParser
 import os.path
 
-default_save = os.path.expanduser("~")
-pc_settings = ConfigParser.ConfigParser({'savedir': default_save,
-                                         'jobsfile': None,
-                                         'savefile': "timesheet.csv"})
+def read_config(options):
+    configfile = options['configfile']
 
+    def_settings = {'dir': os.path.expanduser("~"),
+                   'jobs': "jobs.csv",
+                   'timesheet': "timesheet.csv"}
 
-def read_config(configfile):
+    pc_settings = def_settings
+
     if configfile is None:
         return pc_settings
 
-    settings = {}
+    Config = ConfigParser.ConfigParser()
+
     try:
-        pc_settings.read(configfile)
+        Config.read(configfile)
         section = "main"
-        options = pc_settings.options(section)
+        options = Config.options(section)
         for option in options:
             try:
-                settings[option] = pc_settings.get(section, option)
+                pc_settings[option] = Config.get("main", option)
             except:
                 print("Exception on option " + option)
-                settings[option] = None
     except:
-        print("Issue with config file" + configfile + ".  May not exist")
+        print("Issue with config file " + configfile + ". May not exist")
+        pc_settings = def_settings
 
-    if settings['jobsfile'] is not None and not os.path.isfile(settings['jobsfile']):
-        print("jobsfile does not exist")
-        settings['jobsfile'] = None
+    if not os.path.exists(pc_settings['dir']):
+        print("Directory " + pc_settings['dir'] + " does not exist")
+        pc_settings['dir'] = def_settings['dir']
 
-    if settings['savedir'] is not None and not os.path.exists(settings['savedir']):
-        print("savedir does not exist")
-        settings['savedir'] = None
+    if pc_settings['dir'][len(pc_settings['dir']) - 1] != "/":
+            pc_settings['dir'] = pc_settings['dir'] + "/"
 
-    return settings
+    return pc_settings
