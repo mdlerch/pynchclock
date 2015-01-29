@@ -7,6 +7,7 @@ import datetime
 import os.path
 import configreader
 import clioptions
+from timesheet import *
 
 def is_enter(c):
     return c == curses.KEY_ENTER or (c < 256 and chr(c) == "\n")
@@ -114,19 +115,6 @@ def writeJobs(jfile, clock):
                 jobs_writer.writerow([job, jobtime])
 
 
-def writeTimesheet(tfile, clock, writetime):
-    year = writetime.strftime("%Y")
-    month = writetime.strftime("%m")
-    day = writetime.strftime("%d")
-    with open(tfile, "a") as timesheet_file:
-        times_writer = csv.writer(timesheet_file)
-
-        for job in clock['order']:
-            if job != "None":
-                jobtime = clock['timesheet'][job]
-                times_writer.writerow([year, month, day, job, jobtime])
-
-
 def updateTimes(clock, start):
     if clock['current'] != "None":
         clock['timesheet'][clock['current']] += time.time() - start
@@ -142,6 +130,7 @@ def eventLoop(clock, stdscr, settings):
     active = clock['current']
     message = None
     icon_shift = 1
+    allhours = readTimesheet(settings['dir'] + settings['timesheet'])
 
     while 1:
         maxy, maxx = stdscr.getmaxyx()
@@ -239,7 +228,7 @@ def eventLoop(clock, stdscr, settings):
                 updateTimes(clock, start)
                 writetime = datetime.datetime.now()
                 writetime = writetime - datetime.timedelta(days = 1)
-                writeTimesheet(savefile, clock, writetime)
+                allhours = writeTimesheet(savefile, clock, writetime, allhours)
                 clock['current'] = "None"
                 active = "None"
                 message = "Timesheet appended to " + savefile
