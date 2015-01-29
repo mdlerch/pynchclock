@@ -58,8 +58,8 @@ def readTimesheet(tfile):
             if the_date not in dates:
                 dates.append(the_date)
             if row[3] not in timesheet.keys():
-                timesheet[row[3]] = [row[4]]
+                timesheet[row[3]] = [float(row[4])]
             else:
-                timesheet[row[3]] += [row[4]]
+                timesheet[row[3]] += [float(row[4])]
 
     return {'dates': dates, 'allhours': timesheet}

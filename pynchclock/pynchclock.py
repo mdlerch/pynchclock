@@ -8,6 +8,7 @@ import os.path
 import configreader
 import clioptions
 from timesheet import *
+from displaystats import displayStats
 
 def is_enter(c):
     return c == curses.KEY_ENTER or (c < 256 and chr(c) == "\n")
@@ -118,6 +119,7 @@ def writeJobs(jfile, clock):
 def updateTimes(clock, start):
     if clock['current'] != "None":
         clock['timesheet'][clock['current']] += time.time() - start
+    return time.time()
 
 
 def resetJobs(clock):
@@ -172,17 +174,18 @@ def eventLoop(clock, stdscr, settings):
 
             # Selecting a job
             elif is_enter(c):
-                updateTimes(clock, start)
+                start = updateTimes(clock, start)
                 clock['current'] = active
-                start = time.time()
+
+            # Pause
             elif c == ord('p'):
-                updateTimes(clock, start)
+                start = updateTimes(clock, start)
                 active = "None"
                 clock['current'] = active
 
             # Add a new job
             elif c == ord('a'):
-                updateTimes(clock, start)
+                start = updateTimes(clock, start)
                 clock['current'] = "None"
                 pauseScreen()
                 printHours(clock, stdscr, active)
@@ -195,12 +198,20 @@ def eventLoop(clock, stdscr, settings):
                 printHours(clock, stdscr, active)
                 deleteJob(clock, stdscr, active)
                 restartScreen()
-                active = clock['order'][i]
+
+            # Show job stats
+            elif c == ord('V'):
+                if active != "None":
+                    pauseScreen()
+                    start = updateTimes(clock, start)
+                    displayStats(allhours, clock, active, stdscr)
+                    restartScreen()
+                    start = updateTimes(clock, start)
 
             # Update timesheet
             elif c == ord('U'):
                 pauseScreen()
-                updateTimes(clock, start)
+                start = updateTimes(clock, start)
                 outfile = jobsfile
 
                 if outfile is None:
@@ -225,7 +236,7 @@ def eventLoop(clock, stdscr, settings):
             # Save timesheet
             elif c == ord('S'):
                 pauseScreen()
-                updateTimes(clock, start)
+                start = updateTimes(clock, start)
                 writetime = datetime.datetime.now()
                 writetime = writetime - datetime.timedelta(days = 1)
                 allhours = writeTimesheet(savefile, clock, writetime, allhours)
@@ -245,10 +256,15 @@ def eventLoop(clock, stdscr, settings):
 
             # Quit the program
             elif c == ord('q'):
-                updateTimes(clock, start)
+                start = updateTimes(clock, start)
                 writeJobs(jobsfile, clock)
                 curses.nocbreak(); stdscr.keypad(0); curses.echo(); curses.endwin()
                 exit()
+
+
+
+
+
 
 
 def main():
