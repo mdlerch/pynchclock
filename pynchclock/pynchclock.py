@@ -216,12 +216,13 @@ def eventLoop(clock, stdscr, settings):
                 clock['current'] = "None"
                 active = "None"
 
+
             # Save timesheet
             elif c == ord('S'):
                 pauseScreen()
                 start = updateTimes(clock, start)
                 writetime = datetime.datetime.now()
-                writetime = writetime - datetime.timedelta(days = 1)
+                writetime = writetime - datetime.timedelta(days = settings['dayshift'])
                 allhours = writeTimesheet(savefile, clock, writetime, allhours)
                 clock['current'] = "None"
                 active = "None"
@@ -238,7 +239,7 @@ def eventLoop(clock, stdscr, settings):
                 restartScreen()
 
             # Quit the program
-            elif c == ord('q'):
+            elif c == ord('Q'):
                 start = updateTimes(clock, start)
                 writeJobs(jobsfile, clock)
                 curses.nocbreak(); stdscr.keypad(0); curses.echo(); curses.endwin()

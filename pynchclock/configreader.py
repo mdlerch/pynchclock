@@ -6,7 +6,8 @@ def read_config(options):
 
     def_settings = {'dir': os.path.expanduser("~"),
                    'jobs': "jobs.csv",
-                   'timesheet': "timesheet.csv"}
+                   'timesheet': "timesheet.csv",
+                   'dayshift': 1}
 
     pc_settings = def_settings
 
@@ -21,7 +22,10 @@ def read_config(options):
         options = Config.options(section)
         for option in options:
             try:
-                pc_settings[option] = Config.get("main", option)
+                if option == "dayshift":
+                    pc_settings[option] = Config.getint("main", option)
+                else:
+                    pc_settings[option] = Config.get("main", option)
             except:
                 print("Exception on option " + option)
     except:
