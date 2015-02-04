@@ -184,18 +184,16 @@ def eventLoop(clock, stdscr, settings):
                 clock['current'] = active
 
             # Add a new job
-            elif c == ord('a'):
+            elif c == ord('A'):
                 start = updateTimes(clock, start)
                 clock['current'] = "None"
                 pauseScreen()
-                printHours(clock, stdscr, active)
                 newJob(clock, stdscr)
                 restartScreen()
 
             # Delete a job
-            elif c == ord('d'):
+            elif c == ord('D'):
                 pauseScreen()
-                printHours(clock, stdscr, active)
                 deleteJob(clock, stdscr, active)
                 restartScreen()
 
@@ -208,27 +206,12 @@ def eventLoop(clock, stdscr, settings):
                     restartScreen()
                     start = updateTimes(clock, start)
 
-            # Update timesheet
+            # Update jobs list
             elif c == ord('U'):
                 pauseScreen()
                 start = updateTimes(clock, start)
-                outfile = jobsfile
-
-                if outfile is None:
-                    c = ord('n')
-                else:
-                    stdscr.addstr(maxy - 1, 0, "Use file:" + outfile + " [(y)es]/(n)o/(c)ancel?")
-                    c = stdscr.getch(maxy - 1, 40)
-
-                if is_enter(c):
-                    writeJobs(outfile, clock)
-                    message = "Updated " + outfile
-                elif c == ord('n'):
-                    printHours(clock, stdscr, active)
-                    stdscr.addstr(maxy - 1, 0, "Filename: ")
-                    outfile = stdscr.getstr(maxy - 1, 10, 30)
-                    writeJobs(outfile, clock)
-                    message = "Updated " + outfile
+                writeJobs(jobsfile, clock)
+                message = "Updated " + jobsfile
                 restartScreen()
                 clock['current'] = "None"
                 active = "None"
