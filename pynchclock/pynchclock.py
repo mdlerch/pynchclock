@@ -232,6 +232,7 @@ def eventLoop(clock, stdscr, settings):
             # Reset all jobs to 0.0 hours
             elif c == ord('R'):
                 pauseScreen()
+                printHours(clock, stdscr, active)
                 stdscr.addstr(maxy-1, 0, "Are you sure you wish to reset [y/n]? ")
                 c = stdscr.getch(maxy-1, 38)
                 if c == ord('y'):
