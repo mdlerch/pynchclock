@@ -73,11 +73,11 @@ def newJob(clock, stdscr):
 
 def deleteJob(clock, stdscr, active):
     maxy, maxx = stdscr.getmaxyx()
-    if active == "None":
-        stdscr.addstr(maxy - 1, 0, "Cannot delete None")
-    stdscr.addstr(maxy - 1, 0, "Are you sure you wish to delete[y/n]? ")
-    c = stdscr.getch(maxy - 1, 38)
+    stdscr.addstr(maxy - 1, 0, "Are you sure you wish to delete " + active + " [y/n]? ")
+    c = stdscr.getch(maxy - 1, 50)
     if c == ord('y'):
+        if clock['current'] == active:
+            clock['current'] = "None"
         clock['timesheet'].pop(active)
         clock['order'].remove(active)
 
@@ -194,7 +194,11 @@ def eventLoop(clock, stdscr, settings):
             # Delete a job
             elif c == ord('D'):
                 pauseScreen()
-                deleteJob(clock, stdscr, active)
+                if active == "None":
+                    message = "Cannot delete `None`"
+                else:
+                    deleteJob(clock, stdscr, active)
+                active = "None"
                 restartScreen()
 
             # Show job stats
