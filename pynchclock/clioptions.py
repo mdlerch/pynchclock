@@ -5,14 +5,15 @@ parse = argparse.ArgumentParser()
 
 
 def parseArgs():
-    default_config = os.path.expanduser("~/.config/pynchclock/pynchclockrc")
-    parse.add_argument("-c", "--configfile", default=default_config)
+    default_jobsfile = "./jobs.csv"
+    default_savefile = "./timesheet.csv"
+
+    parse.add_argument("-j", "--jobsfile", default=default_jobsfile)
+    parse.add_argument("-t", "--timesheet", default=default_savefile)
 
     args = parse.parse_args()
 
-    if not os.path.isfile(args.configfile):
-        args.configfile = None
-
-    opts = {'configfile': args.configfile}
+    opts = {'jobsfile': args.jobsfile,
+            'savefile': args.timesheet}
 
     return opts

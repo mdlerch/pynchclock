@@ -81,6 +81,13 @@ def deleteJob(clock, stdscr, active):
         clock['timesheet'].pop(active)
         clock['order'].remove(active)
 
+def checkfiles(jobsfile):
+    if not os.path.isfile(jobsfile):
+        clock = {'order': ['MyJob', 'None'],
+                 'timesheet': {'MyJob': 0, 'None': 0},
+                 'current': "None"}
+        writeJobs("jobsfile.csv", clock)
+
 
 def readJobs(jobsfile):
     if not os.path.isfile(jobsfile):
@@ -127,18 +134,15 @@ def resetJobs(clock):
         clock['timesheet'][j] = 0.0
 
 
-def eventLoop(clock, stdscr, settings):
+def eventLoop(clock, stdscr, jobsfile, savefile):
     start = None
     active = clock['current']
     message = None
     icon_shift = 1
-    allhours = readTimesheet(settings['dir'] + settings['timesheet'])
+    allhours = readTimesheet(savefile)
 
     while 1:
         maxy, maxx = stdscr.getmaxyx()
-
-        jobsfile = settings['dir'] + settings['jobs']
-        savefile = settings['dir'] + settings['timesheet']
 
         printHours(clock, stdscr, active)
 
@@ -226,7 +230,7 @@ def eventLoop(clock, stdscr, settings):
                 pauseScreen()
                 start = updateTimes(clock, start)
                 writetime = datetime.datetime.now()
-                writetime = writetime - datetime.timedelta(days = settings['dayshift'])
+                writetime = writetime - datetime.timedelta(days = 1)
                 allhours = writeTimesheet(savefile, clock, writetime, allhours)
                 clock['current'] = "None"
                 active = "None"
@@ -259,9 +263,12 @@ def eventLoop(clock, stdscr, settings):
 def main():
     options = clioptions.parseArgs()
 
-    settings = configreader.read_config(options)
+    jobsfile = options['jobsfile']
+    savefile = options['savefile']
 
-    clock = readJobs(settings['dir'] + settings['jobs'])
+    checkfiles(jobsfile)
+
+    clock = readJobs(jobsfile)
 
     # initialize curses
     stdscr = curses.initscr()
@@ -276,4 +283,4 @@ def main():
     # First job is none
     clock['current'] = "None"
 
-    eventLoop(clock, stdscr, settings)
+    eventLoop(clock, stdscr, jobsfile, savefile)
