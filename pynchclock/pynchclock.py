@@ -186,6 +186,7 @@ def eventLoop(clock, stdscr, jobsfile, savefile):
                 start = updateTimes(clock, start)
                 active = "None"
                 clock['current'] = active
+                writeJobs(jobsfile, clock)
 
             # Add a new job
             elif c == ord('A'):
@@ -193,6 +194,7 @@ def eventLoop(clock, stdscr, jobsfile, savefile):
                 clock['current'] = "None"
                 pauseScreen()
                 newJob(clock, stdscr)
+                writeJobs(jobsfile, clock)
                 restartScreen()
 
             # Delete a job
@@ -203,6 +205,7 @@ def eventLoop(clock, stdscr, jobsfile, savefile):
                 else:
                     deleteJob(clock, stdscr, active)
                 active = "None"
+                writeJobs(jobsfile, clock)
                 restartScreen()
 
             # Show job stats
@@ -213,6 +216,7 @@ def eventLoop(clock, stdscr, jobsfile, savefile):
                     displayStats(allhours, clock, active, stdscr)
                     restartScreen()
                     start = updateTimes(clock, start)
+                    writeJobs(jobsfile, clock)
 
             # Update jobs list
             elif c == ord('U'):
