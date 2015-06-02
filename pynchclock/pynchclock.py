@@ -179,6 +179,7 @@ def eventLoop(clock, stdscr, jobsfile, savefile):
             # Selecting a job
             elif is_enter(c):
                 start = updateTimes(clock, start)
+                writeJobs(jobsfile, clock)
                 clock['current'] = active
 
             # Pause
