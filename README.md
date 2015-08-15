@@ -4,6 +4,8 @@ It's a simple time sheet, or punch card, or punch clock app.
 
 Install with `pip install git+git://github.com/mdlerch/pynchclock.git`
 
+To install as a local link, use `pip install -e pynchclock/`
+
 #### Status ####
 
 It's pretty usable _for me_.  More configuration will eventually be available.
