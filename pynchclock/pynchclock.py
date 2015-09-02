@@ -214,7 +214,10 @@ def eventLoop(clock, stdscr, jobsfile, savefile):
                 if active != "None":
                     pauseScreen()
                     start = updateTimes(clock, start)
-                    displayStats(allhours, clock, active, stdscr)
+                    if active in allhours['allhours']:
+                        displayStats(allhours, clock, active, stdscr)
+                    else:
+                        message = "No stats on " + active
                     restartScreen()
                     start = updateTimes(clock, start)
                     writeJobs(jobsfile, clock)
