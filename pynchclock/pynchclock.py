@@ -5,7 +5,6 @@ import math
 import curses
 import datetime
 import os.path
-import configreader
 import clioptions
 from timesheet import *
 from displaystats import displayStats
@@ -61,14 +60,13 @@ def restartScreen():
     curses.curs_set(0)
 
 
-def newJob(clock, stdscr):
+def addJob(clock, stdscr, active):
     maxy, maxx = stdscr.getmaxyx()
     stdscr.addstr(maxy - 1, 0, "New job: ")
     newjob = stdscr.getstr(maxy - 1, 9, 30)
     clock['timesheet'][newjob] = 0.0
-    clock['order'].remove("None")
-    clock['order'].append(newjob)
-    clock['order'].append("None")
+    idx = clock['order'].index(active)
+    clock['order'].insert(idx, newjob)
 
 
 def deleteJob(clock, stdscr, active):
@@ -194,7 +192,7 @@ def eventLoop(clock, stdscr, jobsfile, savefile):
                 start = updateTimes(clock, start)
                 clock['current'] = "None"
                 pauseScreen()
-                newJob(clock, stdscr)
+                addJob(clock, stdscr, active)
                 writeJobs(jobsfile, clock)
                 restartScreen()
 
