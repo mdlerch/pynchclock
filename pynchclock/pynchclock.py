@@ -17,7 +17,22 @@ def printHours(clock, stdscr, active):
     job_name_length = []
     for job in clock['order']:
         job_name_length.append(len(job))
+
     spacing = max(job_name_length)
+    shift = 3
+
+    maxy, maxx = stdscr.getmaxyx()
+
+    if maxy < 4 or maxx < 9:
+        stdscr.addstr(0, 0, ".")
+        stdscr.refresh()
+        return
+
+    if maxy < len(clock['order']) + 1 or maxx < (spacing + shift + 8):
+        stdscr.addstr(0, 0, "Window")
+        stdscr.addstr(1, 0, "too small")
+        stdscr.refresh()
+        return
 
     i = 0
     for job in clock['order']:
@@ -26,8 +41,7 @@ def printHours(clock, stdscr, active):
         h = t / 3600.0
         m = (h - math.floor(h)) * 60
 
-        shift = 3
-        if i+1 > 9:
+        if i == 9:
             shift = shift - 1
 
         jobname = job.ljust(spacing + shift, '.')
