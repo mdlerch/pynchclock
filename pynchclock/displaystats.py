@@ -23,7 +23,7 @@ def displayStats(allhours, clock, job, stdscr):
 
     today = datetime.datetime.now()
     todaydate = today.strftime("%Y-%m-%d")
-    t = clock['timesheet'][job]
+    t = clock['hours'][job]
     h = t / 3600.0
     m = (h - math.floor(h)) * 60
     statstring = "{0}: {1:02.0f}:{2:02.0f}".format(todaydate, math.floor(h), m)
