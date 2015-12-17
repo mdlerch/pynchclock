@@ -1,5 +1,6 @@
 import math
 import curses
+from windowcheck import *
 
 
 def pauseScreen():
@@ -24,15 +25,7 @@ def printClock(clock, stdscr, active):
 
     maxy, maxx = stdscr.getmaxyx()
 
-    if maxy < 4 or maxx < 9:
-        stdscr.addstr(0, 0, ".")
-        stdscr.refresh()
-        return
-
-    if maxy < len(clock['order']) + 1 or maxx < (spacing + shift + 8):
-        stdscr.addstr(0, 0, "Window")
-        stdscr.addstr(1, 0, "too small")
-        stdscr.refresh()
+    if checkWindowSize(stdscr, spacing + shift + 8, len(clock['order']) + 1):
         return
 
     i = 0

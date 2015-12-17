@@ -1,6 +1,7 @@
 import math
 import curses
 import datetime
+from windowcheck import *
 
 def displayStats(allhours, clock, job, stdscr):
     stdscr.clear()
@@ -8,11 +9,17 @@ def displayStats(allhours, clock, job, stdscr):
 
     maxy, maxx = stdscr.getmaxyx()
 
+    examplestring = "{0}: {1:02.0f}:{2:02.0f}".format(allhours['dates'][0], 10, 10)
+
+    if checkWindowSize(stdscr, len(examplestring), 5):
+        return
+
     if ndates > maxy - 2:
         maxdates = maxy - 2
     else:
         maxdates = ndates
 
+    # print historic hours
     for i in range(-maxdates, 0):
         t = allhours['allhours'][job][i]
         h = t / 3600.0
@@ -21,6 +28,7 @@ def displayStats(allhours, clock, job, stdscr):
                                                        math.floor(h), m)
         stdscr.addstr(i + maxdates, 0, statstring)
 
+    # print current hours
     today = datetime.datetime.now()
     todaydate = today.strftime("%Y-%m-%d")
     t = clock['hours'][job]
