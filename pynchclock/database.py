@@ -6,7 +6,7 @@ def checkfiles(jobsfile):
         clock = {'order': ['MyJob', 'None'],
                  'hours': {'MyJob': 0, 'None': 0},
                  'current': "None"}
-        writeJobs("jobsfile.csv", clock)
+        writeJobs(jobsfile, clock)
 
 
 def readJobs(jobsfile):
