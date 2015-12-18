@@ -1,44 +1,96 @@
+import sqlite3
 import csv
 import os.path
 
-def checkfiles(jobsfile):
-    if not os.path.isfile(jobsfile):
-        clock = {'order': ['MyJob', 'None'],
-                 'hours': {'MyJob': 0, 'None': 0},
-                 'current': "None"}
-        writeJobs(jobsfile, clock)
+def checkfiles(pynchdb):
+    if not os.path.isfile(pynchdb):
+        conn = sqlite3.connect(pynchdb)
+        c = conn.cursor()
+        c.execute('''CREATE TABLE clock
+                 (job text, hours real, joborder int)''')
+        c.execute("INSERT INTO clock VALUES ('MyJob', 0, 1)")
+        conn.commit()
+        c.execute('''CREATE TABLE timesheet
+                 (job text, date date, hours real)''')
+        conn.commit()
+        conn.close()
 
 
-def readJobs(jobsfile):
-    if not os.path.isfile(jobsfile):
-        clock = {'order': ['MyJob', 'None'],
-                 'hours': {'MyJob': 0, 'None': 0},
-                 'current': "None"}
-        return clock
+def readClock(pynchdb):
+    conn = sqlite3.connect(pynchdb)
+    c = conn.cursor()
 
-    with open(jobsfile) as jobs:
-        jobs_reader = csv.reader(jobs)
-        clock = {'hours': {}}
-        clock['order'] = []
+    clock = {'hours': {}}
+    clock['order'] = []
+    for row in c.execute('SELECT job, hours FROM clock ORDER BY joborder'):
+        jobname, hours = row
+        clock['hours'][jobname] = float(hours)
+        clock['order'].append(jobname)
 
-        for row in jobs_reader:
-            (clock['hours'])[row[0]] = float(row[1])
-            clock['order'].append(row[0])
+    conn.close()
 
-        clock['hours']['None'] = 0.0
-        clock['current'] = "None"
-        clock['order'].append("None")
+    clock['hours']['None'] = 0.0
+    clock['current'] = "None"
+    clock['order'].append("None")
     return clock
 
 
-def writeJobs(jfile, clock):
-    with open(jfile, "wb") as jobs_file:
-        jobs_writer = csv.writer(jobs_file)
+def updateClock(pynchdb, clock, jobname):
+    conn = sqlite3.connect(pynchdb)
+    c = conn.cursor()
 
-        for job in clock['order']:
-            if job != "None":
-                jobtime = clock['hours'][job]
-                jobs_writer.writerow([job, jobtime])
+    c.execute("UPDATE clock SET hours = ? WHERE job = ?",
+              (clock['hours'][jobname], jobname))
+    conn.commit()
+    conn.close()
+
+
+def addToClock(pynchdb, clock, jobname):
+    conn = sqlite3.connect(pynchdb)
+    c = conn.cursor()
+    c.execute("INSERT INTO clock VALUES (?, ?, ?)",
+              (jobname, clock['hours'][jobname], 0))
+    conn.commit()
+    conn.close()
+    updateClockOrder(pynchdb, clock)
+
+
+def updateClockOrder(pynchdb, clock):
+    conn = sqlite3.connect(pynchdb)
+    c = conn.cursor()
+    idx = 0
+    for jobname in clock['order']:
+        idx += 1
+        c.execute("UPDATE clock SET joborder = ? WHERE job = ?", (idx, jobname))
+        conn.commit()
+    conn.close()
+
+def deleteFromClock(pynchdb, jobname):
+    conn = sqlite3.connect(pynchdb)
+    c = conn.cursor()
+    c.execute("DELETE FROM clock WHERE job = ?", (jobname, ))
+    conn.commit()
+    conn.close()
+
+
+
+# def readTimesheet(pynchdb):
+#     conn = sqlite3.connect(pynchdb)
+#     c = conn.cursor()
+
+#     timesheet = {
+
+# def updateTimesheet():
+#     return
+
+# def addToTimesheet(arglist):
+#     return
+
+
+
+
+
+
 
 
 

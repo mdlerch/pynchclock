@@ -5,15 +5,12 @@ parse = argparse.ArgumentParser()
 
 
 def parseArgs():
-    default_jobsfile = "./jobs.csv"
-    default_savefile = "./timesheet.csv"
+    default_pynchdb = "./pynchclock.db"
 
-    parse.add_argument("-j", "--jobsfile", default=default_jobsfile)
-    parse.add_argument("-t", "--timesheet", default=default_savefile)
+    parse.add_argument("-d", "--pynchdb", default=default_pynchdb)
 
     args = parse.parse_args()
 
-    opts = {'jobsfile': args.jobsfile,
-            'savefile': args.timesheet}
+    opts = {'pynchdb': args.pynchdb,}
 
     return opts

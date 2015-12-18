@@ -8,12 +8,11 @@ from .eventloop import *
 def main():
     options = parseArgs()
 
-    jobsfile = options['jobsfile']
-    savefile = options['savefile']
+    pynchdb = options['pynchdb']
+    savefile = 'savefile.csv'
 
-    checkfiles(jobsfile)
-
-    clock = readJobs(jobsfile)
+    checkfiles(pynchdb)
+    clock = readClock(pynchdb)
 
     # initialize curses
     stdscr = curses.initscr()
@@ -28,4 +27,4 @@ def main():
     # First job is none
     clock['current'] = "None"
 
-    eventLoop(clock, stdscr, jobsfile, savefile)
+    eventLoop(clock, stdscr, pynchdb, savefile)

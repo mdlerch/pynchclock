@@ -8,7 +8,7 @@ from editclock import *
 def is_enter(c):
     return c == curses.KEY_ENTER or (c < 256 and chr(c) == "\n")
 
-def eventLoop(clock, stdscr, jobsfile, savefile):
+def eventLoop(clock, stdscr, pynchdb, savefile):
     start = None
     active = clock['current']
     message = None
@@ -53,34 +53,34 @@ def eventLoop(clock, stdscr, jobsfile, savefile):
             # Selecting a job
             elif is_enter(c):
                 start = updateTimes(clock, start)
-                writeJobs(jobsfile, clock)
+                updateClock(pynchdb, clock, clock['current'])
                 clock['current'] = active
 
             # Pause
             elif c == ord('p'):
                 start = updateTimes(clock, start)
+                updateClock(pynchdb, clock, clock['current'])
                 active = "None"
                 clock['current'] = active
-                writeJobs(jobsfile, clock)
 
             # Add a new job
             elif c == ord('A'):
                 start = updateTimes(clock, start)
+                updateClock(pynchdb, clock, clock['current'])
                 clock['current'] = "None"
                 pauseScreen()
-                addJob(clock, stdscr, active)
-                writeJobs(jobsfile, clock)
+                addJob(clock, stdscr, active, pynchdb)
                 restartScreen()
 
             # Delete a job
             elif c == ord('D'):
                 pauseScreen()
+                updateClock(pynchdb, clock, clock['current'])
                 if active == "None":
                     message = "Cannot delete `None`"
                 else:
                     deleteJob(clock, stdscr, active)
                 active = "None"
-                writeJobs(jobsfile, clock)
                 restartScreen()
 
             # Show job stats
@@ -94,14 +94,14 @@ def eventLoop(clock, stdscr, jobsfile, savefile):
                         message = "No stats on " + active
                     restartScreen()
                     start = updateTimes(clock, start)
-                    writeJobs(jobsfile, clock)
+                    updateClock(pynchdb, clock, clock['current'])
 
             # Update jobs list
             elif c == ord('U'):
                 pauseScreen()
                 start = updateTimes(clock, start)
-                writeJobs(jobsfile, clock)
-                message = "Updated " + jobsfile
+                updateClock(pynchdb, clock, clock['current'])
+                message = "Updated " + pynchdb
                 restartScreen()
                 clock['current'] = "None"
                 active = "None"
@@ -132,6 +132,6 @@ def eventLoop(clock, stdscr, jobsfile, savefile):
             # Quit the program
             elif c == ord('Q'):
                 start = updateTimes(clock, start)
-                writeJobs(jobsfile, clock)
+                updateClock(pynchdb, clock, clock['current'])
                 curses.nocbreak(); stdscr.keypad(0); curses.echo(); curses.endwin()
                 exit()

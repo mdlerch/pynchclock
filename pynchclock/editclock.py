@@ -1,12 +1,15 @@
+from database import *
 import time
 
-def addJob(clock, stdscr, active):
+def addJob(clock, stdscr, active, pynchdb):
     maxy, maxx = stdscr.getmaxyx()
     stdscr.addstr(maxy - 1, 0, "New job: ")
     newjob = stdscr.getstr(maxy - 1, 9, 30)
     clock['hours'][newjob] = 0.0
     idx = clock['order'].index(active)
     clock['order'].insert(idx, newjob)
+    addToClock(pynchdb, clock, newjob)
+
 
 def deleteJob(clock, stdscr, active):
     maxy, maxx = stdscr.getmaxyx()
