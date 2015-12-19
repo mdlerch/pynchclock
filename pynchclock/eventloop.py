@@ -4,6 +4,7 @@ from database import *
 from displaystats import *
 from printclock import *
 from editclock import *
+from edittimesheet import *
 
 def is_enter(c):
     return c == curses.KEY_ENTER or (c < 256 and chr(c) == "\n")

@@ -33,19 +33,3 @@ def updateClock(clock, start, pynchdb):
         updateClockDB(pynchdb, clock, clock['current'])
     return time.time()
 
-def updateTimesheet(timesheet, clock, writedate, pynchdb):
-    for j, t in clock['hours'].iteritems():
-        if j in timesheet.keys():
-            if writedate in timesheet[j]['date']:
-                timesheet[j]['hours'][timesheet[j]['date'].index(writedate)] = t
-                updateTimesheetDB(pynchdb, timesheet, j, writedate)
-            else:
-                timesheet[j]['hours'].append(t)
-                timesheet[j]['date'].append(writedate)
-                addToTimesheetDB(pynchdb, timesheet, j, writedate)
-        elif j != 'None':
-            timesheet[j]['hours'] = t
-            timesheet[j]['date'] = writedate
-            addToTimesheetDB(pynchdb, timesheet, j, writedate)
-
-
