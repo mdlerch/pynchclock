@@ -12,7 +12,8 @@ def main():
     savefile = 'savefile.csv'
 
     checkfiles(pynchdb)
-    clock = readClock(pynchdb)
+    clock = readClockDB(pynchdb)
+    timesheet = readTimesheetDB(pynchdb)
 
     # initialize curses
     stdscr = curses.initscr()
@@ -27,4 +28,4 @@ def main():
     # First job is none
     clock['current'] = "None"
 
-    eventLoop(clock, stdscr, pynchdb, savefile)
+    eventLoop(clock, timesheet, stdscr, pynchdb, savefile)

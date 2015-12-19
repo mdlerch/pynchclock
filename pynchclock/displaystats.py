@@ -3,13 +3,13 @@ import curses
 import datetime
 from windowcheck import *
 
-def displayStats(allhours, clock, job, stdscr):
+def displayStats(timesheet, clock, job, stdscr):
     stdscr.clear()
-    ndates = len(allhours['dates'])
+    ndates = len(timesheet[job]['date'])
 
     maxy, maxx = stdscr.getmaxyx()
 
-    examplestring = "{0}: {1:02.0f}:{2:02.0f}".format(allhours['dates'][0], 10, 10)
+    examplestring = "{0}: {1:02.0f}:{2:02.0f}".format("1999-12-31", 10, 10)
 
     if checkWindowSize(stdscr, len(examplestring), 5):
         return
@@ -21,10 +21,10 @@ def displayStats(allhours, clock, job, stdscr):
 
     # print historic hours
     for i in range(-maxdates, 0):
-        t = allhours['allhours'][job][i]
+        t = timesheet[job]['hours'][i]
         h = t / 3600.0
         m = (h - math.floor(h)) * 60
-        statstring = "{0}: {1:02.0f}:{2:02.0f}".format(allhours['dates'][i],
+        statstring = "{0}: {1:02.0f}:{2:02.0f}".format(timesheet[job]['date'][i],
                                                        math.floor(h), m)
         stdscr.addstr(i + maxdates, 0, statstring)
 

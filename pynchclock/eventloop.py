@@ -8,12 +8,11 @@ from editclock import *
 def is_enter(c):
     return c == curses.KEY_ENTER or (c < 256 and chr(c) == "\n")
 
-def eventLoop(clock, stdscr, pynchdb, savefile):
+def eventLoop(clock, timesheet, stdscr, pynchdb, savefile):
     start = None
     active = clock['current']
     message = None
     icon_shift = 1
-    allhours = readTimesheet(savefile)
 
     while 1:
         maxy, maxx = stdscr.getmaxyx()
@@ -52,34 +51,31 @@ def eventLoop(clock, stdscr, pynchdb, savefile):
 
             # Selecting a job
             elif is_enter(c):
-                start = updateTimes(clock, start)
-                updateClock(pynchdb, clock, clock['current'])
+                start = updateClock(clock, start, pynchdb)
                 clock['current'] = active
 
             # Pause
             elif c == ord('p'):
-                start = updateTimes(clock, start)
-                updateClock(pynchdb, clock, clock['current'])
+                start = updateClock(clock, start, pynchdb)
                 active = "None"
                 clock['current'] = active
 
             # Add a new job
             elif c == ord('A'):
-                start = updateTimes(clock, start)
-                updateClock(pynchdb, clock, clock['current'])
+                start = updateClock(clock, start, pynchdb)
                 clock['current'] = "None"
                 pauseScreen()
-                addJob(clock, stdscr, active, pynchdb)
+                addToClock(clock, stdscr, active, pynchdb)
                 restartScreen()
 
             # Delete a job
             elif c == ord('D'):
                 pauseScreen()
-                updateClock(pynchdb, clock, clock['current'])
+                start = updateClock(clock, start, pynchdb)
                 if active == "None":
                     message = "Cannot delete `None`"
                 else:
-                    deleteJob(clock, stdscr, active)
+                    deleteFromClock(clock, stdscr, active)
                 active = "None"
                 restartScreen()
 
@@ -87,36 +83,34 @@ def eventLoop(clock, stdscr, pynchdb, savefile):
             elif c == ord('V'):
                 if active != "None":
                     pauseScreen()
-                    start = updateTimes(clock, start)
-                    if active in allhours['allhours']:
-                        displayStats(allhours, clock, active, stdscr)
+                    start = updateClock(clock, start, pynchdb)
+                    if active in timesheet.keys():
+                        displayStats(timesheet, clock, active, stdscr)
                     else:
                         message = "No stats on " + active
                     restartScreen()
-                    start = updateTimes(clock, start)
-                    updateClock(pynchdb, clock, clock['current'])
+                    start = updateClock(clock, start, pynchdb)
 
             # Update jobs list
             elif c == ord('U'):
                 pauseScreen()
-                start = updateTimes(clock, start)
-                updateClock(pynchdb, clock, clock['current'])
+                start = updateClock(clock, start, pynchdb)
                 message = "Updated " + pynchdb
                 restartScreen()
                 clock['current'] = "None"
                 active = "None"
 
 
-            # Save hours
+            # Save today's hours
             elif c == ord('S'):
                 pauseScreen()
-                start = updateTimes(clock, start)
-                writetime = datetime.datetime.now()
-                writetime = writetime - datetime.timedelta(days = 1)
-                allhours = writeTimesheet(savefile, clock, writetime, allhours)
+                start = updateClock(clock, start, pynchdb)
+                writedate = (datetime.datetime.now() - datetime.timedelta(days = 1)).strftime("%Y-%m-%d")
+                updateTimesheet(timesheet, clock, writedate, pynchdb)
+                # writeDateTimesheet(pynchdb, clock, writetime, timesheet)
                 clock['current'] = "None"
                 active = "None"
-                message = "hours appended to " + savefile
+                message = pynchdb + " updated"
                 restartScreen()
 
             # Reset all jobs to 0.0 hours
@@ -126,12 +120,11 @@ def eventLoop(clock, stdscr, pynchdb, savefile):
                 stdscr.addstr(maxy-1, 0, "Are you sure you wish to reset [y/n]? ")
                 c = stdscr.getch(maxy-1, 38)
                 if c == ord('y'):
-                    resetJobs(clock)
+                    resetJobs(clock, pynchdb)
                 restartScreen()
 
             # Quit the program
             elif c == ord('Q'):
-                start = updateTimes(clock, start)
-                updateClock(pynchdb, clock, clock['current'])
+                start = updateClock(clock, start, pynchdb)
                 curses.nocbreak(); stdscr.keypad(0); curses.echo(); curses.endwin()
                 exit()
