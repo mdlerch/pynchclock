@@ -80,14 +80,11 @@ def eventLoop(clock, timesheet, stdscr, pynchdb, savefile):
             # Show job stats
             elif c == ord('V'):
                 if active != "None":
-                    pauseScreen()
                     start = updateClock(clock, start, pynchdb)
                     if active in timesheet.keys():
-                        printTimesheet(timesheet, clock, active, 0, stdscr)
-                        c = stdscr.getch()
+                        displayStats(timesheet, clock, active, stdscr)
                     else:
                         message = "No stats on " + active
-                    restartScreen()
                     start = updateClock(clock, start, pynchdb)
 
             # Update jobs list
@@ -125,10 +122,7 @@ def eventLoop(clock, timesheet, stdscr, pynchdb, savefile):
             elif c == ord('E'):
                 if active != "None":
                     start = updateClock(clock, start, pynchdb)
-                    if active in timesheet.keys():
-                        chooseEditDate(timesheet, clock, active, stdscr, pynchdb)
-                    else:
-                        message = "No stats on " + active
+                    chooseEditDate(timesheet, clock, active, stdscr, pynchdb)
                     restartScreen()
                     start = updateClock(clock, start, pynchdb)
 

@@ -3,15 +3,13 @@ import curses
 import datetime
 from windowcheck import *
 
-def displayStats(timesheet, clock, job, stdscr):
+def displayStats(timesheet, clock, jobname, stdscr):
     stdscr.clear()
-    ndates = len(timesheet[job]['date'])
+    ndates = len(timesheet[jobname]['date'])
 
     maxy, maxx = stdscr.getmaxyx()
 
-    examplestring = "{0}: {1:02.0f}:{2:02.0f}".format("1999-12-31", 10, 10)
-
-    if checkWindowSize(stdscr, len(examplestring), 5):
+    if checkWindowSize(stdscr, 10, 5):
         return
 
     if ndates > maxy - 2:
@@ -19,22 +17,23 @@ def displayStats(timesheet, clock, job, stdscr):
     else:
         maxdates = ndates
 
-    # print historic hours
+    maxtime = max(timesheet[jobname]['hours'])
+    maxtime = max(maxtime, clock['hours'][jobname])
+    # alltimes.append(clock['hours'][jobname])
+
+    scale = (maxx - 2.0) / maxtime
+
+    # plot historic hours
     for i in range(-maxdates, 0):
-        t = timesheet[job]['hours'][i]
-        h = t / 3600.0
-        m = (h - math.floor(h)) * 60
-        statstring = "{0}: {1:02.0f}:{2:02.0f}".format(timesheet[job]['date'][i],
-                                                       math.floor(h), m)
-        stdscr.addstr(i + maxdates, 0, statstring)
+        chars = int(round(timesheet[jobname]['hours'][i] * scale)) - 11
+        plotstring = "{0} ".format(timesheet[jobname]['date'][i]) + "=" * chars
+        stdscr.addstr(i + maxdates, 0, plotstring)
 
     # print current hours
+    chars = int(round(clock['hours'][jobname] * scale)) - 11
     today = datetime.datetime.now()
     todaydate = today.strftime("%Y-%m-%d")
-    t = clock['hours'][job]
-    h = t / 3600.0
-    m = (h - math.floor(h)) * 60
-    statstring = "{0}: {1:02.0f}:{2:02.0f}".format(todaydate, math.floor(h), m)
-    stdscr.addstr(maxdates, 0, statstring)
+    plotstring = "{0} ".format(todaydate) + "=" * chars
+    stdscr.addstr(maxdates, 0, plotstring)
 
     c = stdscr.getch()
