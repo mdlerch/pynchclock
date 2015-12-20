@@ -19,6 +19,15 @@ def checkfiles(pynchdb):
         conn.close()
 
 
+def editClockDB(pynchdb, jobname, hours):
+    conn = sqlite3.connect(pynchdb)
+    c = conn.cursor()
+    c.execute("UPDATE clock SET hours = ? WHERE job = ?",
+              (hours, jobname))
+    conn.commit()
+    conn.close()
+
+
 def readClockDB(pynchdb):
     conn = sqlite3.connect(pynchdb)
     c = conn.cursor()
@@ -89,6 +98,8 @@ def readTimesheetDB(pynchdb):
             timesheet[jobname]['date'].append(date)
             timesheet[jobname]['hours'].append(hours)
     conn.close()
+    for jobname in timesheet.keys():
+        sortTimesheet(timesheet, jobname)
     return timesheet
 
 
@@ -103,11 +114,42 @@ def updateTimesheetDB(pynchdb, timesheet, jobname, date):
 
 
 
-def addToTimesheetDB(pynchdb, timesheet, jobname, date):
-    idx = timesheet[jobname]['date'].index(date)
+def addToTimesheetDB(pynchdb, jobname, date, hours):
     conn = sqlite3.connect(pynchdb)
     c = conn.cursor()
     c.execute("INSERT INTO timesheet VALUES (?, ?, ?)",
-              (jobname, date, timesheet[jobname]['hours'][idx]))
+              (jobname, date, hours))
     conn.commit()
     conn.close()
+
+def editTimesheetDB(pynchdb, jobname, date, hours):
+    conn = sqlite3.connect(pynchdb)
+    c = conn.cursor()
+    c.execute('UPDATE timesheet SET hours = ? WHERE job = ? AND jobdate = ?',
+              (hours, jobname, date))
+    conn.commit()
+    conn.close()
+
+def deleteFromTimesheetDB(pynchdb, jobname, date):
+    conn = sqlite3.connect(pynchdb)
+    c = conn.cursor()
+    c.execute('DELETE FROM timesheet WHERE job = ? AND jobdate = ?',
+              (jobname, date, ))
+    conn.commit()
+    conn.close()
+
+
+def sortTimesheet(timesheet, jobname):
+    dates = [datetime.datetime.strptime(ts, "%Y-%m-%d")
+             for ts in timesheet[jobname]['date']]
+    unsorted = [datetime.datetime.strftime(ts, "%Y-%m-%d") for ts in dates]
+    dates.sort()
+    sorted = [datetime.datetime.strftime(ts, "%Y-%m-%d") for ts in dates]
+    order = None
+    order = []
+    for ts in sorted:
+        order.append(unsorted.index(ts))
+
+    timesheet[jobname]['date'] = [timesheet[jobname]['date'][i] for i in order]
+    timesheet[jobname]['hours'] = [timesheet[jobname]['hours'][i] for i in order]
+

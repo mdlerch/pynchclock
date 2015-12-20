@@ -33,3 +33,7 @@ def updateClock(clock, start, pynchdb):
         updateClockDB(pynchdb, clock, clock['current'])
     return time.time()
 
+def editClock(clock, jobname, hours, pynchdb):
+    clock['hours'][jobname] = hours
+    editClockDB(pynchdb, jobname, hours)
+

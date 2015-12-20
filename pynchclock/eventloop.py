@@ -6,9 +6,6 @@ from printclock import *
 from editclock import *
 from edittimesheet import *
 
-def is_enter(c):
-    return c == curses.KEY_ENTER or (c < 256 and chr(c) == "\n")
-
 def eventLoop(clock, timesheet, stdscr, pynchdb, savefile):
     start = None
     active = clock['current']
@@ -86,7 +83,8 @@ def eventLoop(clock, timesheet, stdscr, pynchdb, savefile):
                     pauseScreen()
                     start = updateClock(clock, start, pynchdb)
                     if active in timesheet.keys():
-                        displayStats(timesheet, clock, active, stdscr)
+                        printTimesheet(timesheet, clock, active, 0, stdscr)
+                        c = stdscr.getch()
                     else:
                         message = "No stats on " + active
                     restartScreen()
@@ -123,6 +121,17 @@ def eventLoop(clock, timesheet, stdscr, pynchdb, savefile):
                 if c == ord('y'):
                     resetJobs(clock, pynchdb)
                 restartScreen()
+
+            elif c == ord('E'):
+                if active != "None":
+                    start = updateClock(clock, start, pynchdb)
+                    if active in timesheet.keys():
+                        chooseEditDate(timesheet, clock, active, stdscr, pynchdb)
+                    else:
+                        message = "No stats on " + active
+                    restartScreen()
+                    start = updateClock(clock, start, pynchdb)
+
 
             # Quit the program
             elif c == ord('Q'):
