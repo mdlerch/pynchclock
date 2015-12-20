@@ -89,6 +89,9 @@ def printTimesheet(timesheet, clock, jobname, active, stdscr):
             else:
                 stdscr.addstr(i + maxdates, 0, statstring)
 
+    else:
+        active = 0
+
     # print current hours
     today = datetime.datetime.now()
     todaydate = today.strftime("%Y-%m-%d")
