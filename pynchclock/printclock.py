@@ -59,31 +59,35 @@ def printClock(clock, stdscr, active):
 
 def printTimesheet(timesheet, clock, jobname, active, stdscr):
     stdscr.clear()
-    ndates = len(timesheet[jobname]['date'])
 
-    maxy, maxx = stdscr.getmaxyx()
+    maxdates = 0
 
-    examplestring = "{0}: {1:02.0f}:{2:02.0f}".format("1999-12-31", 10, 10)
+    if jobname in timesheet.keys():
+        ndates = len(timesheet[jobname]['date'])
 
-    if checkWindowSize(stdscr, len(examplestring), 5):
-        return
+        maxy, maxx = stdscr.getmaxyx()
 
-    if ndates > maxy - 2:
-        maxdates = maxy - 2
-    else:
-        maxdates = ndates
+        examplestring = "{0}: {1:02.0f}:{2:02.0f}".format("1999-12-31", 10, 10)
 
-    # print historic hours
-    for i in range(-maxdates, 0):
-        t = timesheet[jobname]['hours'][i]
-        h = t / 3600.0
-        m = (h - math.floor(h)) * 60
-        statstring = "{0}: {1:02.0f}:{2:02.0f}".format(timesheet[jobname]['date'][i],
-                                                       math.floor(h), m)
-        if i == active:
-            stdscr.addstr(i + maxdates, 0, statstring, curses.A_REVERSE)
+        if checkWindowSize(stdscr, len(examplestring), 5):
+            return
+
+        if ndates > maxy - 2:
+            maxdates = maxy - 2
         else:
-            stdscr.addstr(i + maxdates, 0, statstring)
+            maxdates = ndates
+
+        # print historic hours
+        for i in range(-maxdates, 0):
+            t = timesheet[jobname]['hours'][i]
+            h = t / 3600.0
+            m = (h - math.floor(h)) * 60
+            statstring = "{0}: {1:02.0f}:{2:02.0f}".format(timesheet[jobname]['date'][i],
+                                                           math.floor(h), m)
+            if i == active:
+                stdscr.addstr(i + maxdates, 0, statstring, curses.A_REVERSE)
+            else:
+                stdscr.addstr(i + maxdates, 0, statstring)
 
     # print current hours
     today = datetime.datetime.now()
