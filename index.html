@@ -19,6 +19,48 @@
 <h1 id="installation">Installation</h1>
 <pre><code>pip install git+git://github.com/mdlerch/pynchclock.git</code></pre>
 <h1 id="usage">Usage</h1>
+<h2 id="components">Components</h2>
+<p>There are two components to <code>pynchclock</code>. The first is the component is the <strong>clock</strong> which stores <em>today's</em> job names and hours. The second component is the <strong>timesheet</strong> which stores <em>historic</em> job names, hours, and the dates of those hours.</p>
+<h2 id="controls">Controls</h2>
+<h3 id="main-screen">Main screen</h3>
+<p>The main screen displays the <strong>clock</strong>. From the <strong>clock</strong>, use the below controls:</p>
+<ul>
+<li>Launch with <code>pynchclock</code>.</li>
+<li>Scroll with <code>j</code>/<code>k</code> or <code>UP</code>/<code>DOWN</code>.</li>
+<li>Add new job in place with <code>A</code>.</li>
+<li>Delete a job with <code>D</code></li>
+<li>Start timing a job with <code>ENTER</code>.</li>
+<li>Quickly pause (job == None) with <code>p</code>.</li>
+<li>Reset all clock hours to 0.0 with <code>R</code>.</li>
+<li>Update current clock hours to disk <code>U</code>.</li>
+<li>Save current clock hours to the historic timesheet <code>S</code>.</li>
+<li>Quit with <code>Q</code>.</li>
+</ul>
+<h3 id="edit-screen">Edit screen</h3>
+<p>The edit screen can be used to adjust recorded times. Enter the edit screen from the main screen with <code>E</code>.</p>
+<ul>
+<li>Scroll with <code>j</code>/<code>k</code> or <code>UP</code>/<code>DOWN</code>.</li>
+<li>Edit the currently selected time with <code>ENTER</code>.</li>
+<li>Add an additional date and hours with <code>A</code>.</li>
+<li>Delete the selected entry with <code>D</code>.</li>
+<li>Quit the edit screen and return to the main screen with <code>Q</code>.</li>
+</ul>
+<h3 id="graph-screen">Graph screen</h3>
+<p>The graph screen provides a ascii plot of the timesheet for a particular job. Enter the graph screen from the main screen with <code>V</code>.</p>
+<ul>
+<li>Return to the main screen with any key.</li>
+</ul>
 <h1 id="to-do">To do</h1>
+<ul>
+<li>Protect against illegal user input.</li>
+<li>Save clock and timesheet to csv</li>
+<li>Improve method of going from clock to timesheet (today's date? yesterday? custom?)</li>
+<li>Support configuration options
+<ul>
+<li>database file</li>
+<li>keys</li>
+<li>colors</li>
+</ul></li>
+</ul>
 </body>
 </html>
