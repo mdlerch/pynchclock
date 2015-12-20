@@ -73,7 +73,7 @@ def eventLoop(clock, timesheet, stdscr, pynchdb, savefile):
                 if active == "None":
                     message = "Cannot delete `None`"
                 else:
-                    deleteFromClock(clock, stdscr, active)
+                    deleteFromClock(clock, stdscr, active, pynchdb)
                 active = "None"
                 restartScreen()
 
