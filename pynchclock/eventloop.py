@@ -2,7 +2,7 @@ import datetime
 from clioptions import *
 from database import *
 from displaystats import *
-from printclock import *
+from printobjects import *
 from editclock import *
 from edittimesheet import *
 

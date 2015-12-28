@@ -1,6 +1,6 @@
 import datetime
 from database import *
-from printclock import *
+from printobjects import *
 from editclock import *
 
 def is_enter(c):

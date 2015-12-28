@@ -1,7 +1,7 @@
 import curses
 from clioptions import *
 from database import *
-from .printclock import *
+from .printobjects import *
 from .eventloop import *
 
 
