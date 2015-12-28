@@ -28,4 +28,4 @@ def main():
     # First job is none
     clock['current'] = "None"
 
-    eventLoop(clock, timesheet, stdscr, pynchdb, savefile)
+    eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile)

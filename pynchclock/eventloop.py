@@ -6,7 +6,7 @@ from printclock import *
 from editclock import *
 from edittimesheet import *
 
-def eventLoop(clock, timesheet, stdscr, pynchdb, savefile):
+def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
     start = None
     active = clock['current']
     message = None
@@ -119,10 +119,10 @@ def eventLoop(clock, timesheet, stdscr, pynchdb, savefile):
                     resetJobs(clock, pynchdb)
                 restartScreen()
 
-            elif c == ord('E'):
+            elif c == ord('T'):
                 if active != "None":
                     start = updateClock(clock, start, pynchdb)
-                    chooseEditDate(timesheet, clock, active, stdscr, pynchdb)
+                    eventLoopTimesheet(timesheet, clock, active, stdscr, pynchdb)
                     restartScreen()
                     start = updateClock(clock, start, pynchdb)
 
@@ -132,3 +132,78 @@ def eventLoop(clock, timesheet, stdscr, pynchdb, savefile):
                 start = updateClock(clock, start, pynchdb)
                 curses.nocbreak(); stdscr.keypad(0); curses.echo(); curses.endwin()
                 exit()
+
+
+
+def eventLoopTimesheet(timesheet, clock, jobname, stdscr, pynchdb):
+    active = -1
+    while 1:
+        maxy, maxx = stdscr.getmaxyx()
+        maxdates = printTimesheet(timesheet, clock, jobname, active, stdscr)
+        c = stdscr.getch()
+
+        # note: indexing is backwards for timesheet
+
+        # UP means more older means more negative
+        if c == curses.KEY_UP or (c < 256 and chr(c) == 'k'):
+            if -active < maxdates:
+                active += -1
+        # DOWN means more recent means less negative
+        elif c == curses.KEY_DOWN or (c < 256 and chr(c) == 'j'):
+            if active < 0:
+                active += 1
+        elif is_enter(c):
+            pauseScreen()
+            if -active > 0:
+                stdscr.addstr(maxy - 1, 0, "New HOURS (HH): ")
+                newHOURS = int(stdscr.getstr(maxy - 1, 16, 30))
+                stdscr.addstr(maxy - 1, 0, " " * (maxx - 1))
+                stdscr.addstr(maxy - 1, 0, "New MINUTES (MM): ")
+                newMINS = int(stdscr.getstr(maxy - 1, 18, 30))
+                newhours = newHOURS * 3600 + newMINS * 60
+                idx = maxdates + active
+                date = timesheet[jobname]['date'][idx]
+                editTimesheet(timesheet, jobname, date, newhours, pynchdb)
+            if active == 0:
+                stdscr.addstr(maxy - 1, 0, "New HOURS (HH): ")
+                newHOURS = int(stdscr.getstr(maxy - 1, 16, 30))
+                stdscr.addstr(maxy - 1, 0, " " * (maxx - 1))
+                stdscr.addstr(maxy - 1, 0, "New MINUTES (MM): ")
+                newMINS = int(stdscr.getstr(maxy - 1, 18, 30))
+                newhours = newHOURS * 3600 + newMINS * 60
+                editClock(clock, jobname, newhours, pynchdb)
+            restartScreen()
+        elif c == ord('A'):
+            pauseScreen()
+            stdscr.addstr(maxy - 1, 0, "New HOURS (HH): ")
+            newHOURS = int(stdscr.getstr(maxy - 1, 16, 30))
+            stdscr.addstr(maxy - 1, 0, " " * (maxx - 1))
+            stdscr.addstr(maxy - 1, 0, "New MINUTES (MM): ")
+            newMINS = int(stdscr.getstr(maxy - 1, 18, 30))
+            stdscr.addstr(maxy - 1, 0, " " * (maxx - 1))
+            newhours = newHOURS * 3600 + newMINS * 60
+            stdscr.addstr(maxy - 1, 0, "New year (YYYY): ")
+            newYEAR = int(stdscr.getstr(maxy - 1, 17, 30))
+            stdscr.addstr(maxy - 1, 0, " " * (maxx - 1))
+            stdscr.addstr(maxy - 1, 0, "New month: ")
+            newMONTH = int(stdscr.getstr(maxy - 1, 11, 30))
+            stdscr.addstr(maxy - 1, 0, " " * (maxx - 1))
+            stdscr.addstr(maxy - 1, 0, "New day: ")
+            newDAY = int(stdscr.getstr(maxy - 1, 9, 30))
+            stdscr.addstr(maxy - 1, 0, " " * (maxx - 1))
+            newdate = "{0:02}-{1:02}-{2:02}".format(newYEAR, newMONTH, newDAY)
+            addToTimesheet(timesheet, jobname, newdate, newhours, pynchdb)
+            sortTimesheet(timesheet, jobname)
+            restartScreen()
+
+        elif c == ord('D'):
+            if active != 0:
+                idx = maxdates + active
+                date = timesheet[jobname]['date'][idx]
+                deleteFromTimesheet(timesheet, jobname, date, pynchdb)
+                active += 1
+
+
+        elif c == ord('C'):
+            break
+
