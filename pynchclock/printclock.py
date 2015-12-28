@@ -62,6 +62,9 @@ def printTimesheet(timesheet, clock, jobname, active, stdscr):
 
     maxdates = 0
 
+    # print jobname
+    stdscr.addstr(0, 0, "Timesheet for: " + jobname)
+
     if jobname in timesheet.keys():
         ndates = len(timesheet[jobname]['date'])
 
@@ -77,8 +80,6 @@ def printTimesheet(timesheet, clock, jobname, active, stdscr):
         else:
             maxdates = ndates
 
-        # print jobname
-        stdscr.addstr(0, 0, "Timesheet for: " + jobname)
 
         # print historic hours
         for i in range(-maxdates, 0):

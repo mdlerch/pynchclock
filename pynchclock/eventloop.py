@@ -35,118 +35,119 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
         c = stdscr.getch()
 
         # with nodelay, getch returns curses.ERR
-        if c != curses.ERR:
+        if c == curses.ERR:
+            continue
 
-            # Moving up or down
-            if c == curses.KEY_UP or (c < 256 and chr(c) == 'k'):
-                if clock['order'].index(active) > 0:
-                    i = i - 1
-                    active = clock['order'][i]
-            elif c == curses.KEY_DOWN or (c < 256 and chr(c) == 'j'):
-                if clock['order'].index(active) < njobs - 1:
-                    i = i + 1
-                    active = clock['order'][i]
+        # Moving up or down
+        if c == curses.KEY_UP or (c < 256 and chr(c) == 'k'):
+            if clock['order'].index(active) > 0:
+                i = i - 1
+                active = clock['order'][i]
+        elif c == curses.KEY_DOWN or (c < 256 and chr(c) == 'j'):
+            if clock['order'].index(active) < njobs - 1:
+                i = i + 1
+                active = clock['order'][i]
 
-            # Selecting a job
-            elif is_enter(c):
+        # Selecting a job
+        elif is_enter(c):
+            start = updateClock(clock, start, pynchdb)
+            clock['current'] = active
+
+        # Pause
+        elif c == ord('p'):
+            start = updateClock(clock, start, pynchdb)
+            active = "None"
+            clock['current'] = active
+
+        # Add a new job
+        elif c == ord('A'):
+            start = updateClock(clock, start, pynchdb)
+            clock['current'] = "None"
+            pauseScreen()
+            addToClock(clock, stdscr, active, pynchdb)
+            restartScreen()
+
+        # Delete a job
+        elif c == ord('D'):
+            pauseScreen()
+            start = updateClock(clock, start, pynchdb)
+            if active == "None":
+                message = "Cannot delete `None`"
+            else:
+                deleteFromClock(clock, stdscr, active, pynchdb)
+            active = "None"
+            restartScreen()
+
+        # Show job stats
+        elif c == ord('V'):
+            if active != "None":
                 start = updateClock(clock, start, pynchdb)
-                clock['current'] = active
-
-            # Pause
-            elif c == ord('p'):
-                start = updateClock(clock, start, pynchdb)
-                active = "None"
-                clock['current'] = active
-
-            # Add a new job
-            elif c == ord('A'):
-                start = updateClock(clock, start, pynchdb)
-                clock['current'] = "None"
-                pauseScreen()
-                addToClock(clock, stdscr, active, pynchdb)
-                restartScreen()
-
-            # Delete a job
-            elif c == ord('D'):
-                pauseScreen()
-                start = updateClock(clock, start, pynchdb)
-                if active == "None":
-                    message = "Cannot delete `None`"
+                if active in timesheet.keys():
+                    displayStats(timesheet, clock, active, stdscr)
                 else:
-                    deleteFromClock(clock, stdscr, active, pynchdb)
-                active = "None"
-                restartScreen()
-
-            # Show job stats
-            elif c == ord('V'):
-                if active != "None":
-                    start = updateClock(clock, start, pynchdb)
-                    if active in timesheet.keys():
-                        displayStats(timesheet, clock, active, stdscr)
-                    else:
-                        message = "No stats on " + active
-                    start = updateClock(clock, start, pynchdb)
-
-            # Update jobs list
-            elif c == ord('U'):
-                pauseScreen()
+                    message = "No stats on " + active
                 start = updateClock(clock, start, pynchdb)
-                message = "Updated " + pynchdb
-                restartScreen()
-                clock['current'] = "None"
-                active = "None"
+
+        # Update jobs list
+        elif c == ord('U'):
+            pauseScreen()
+            start = updateClock(clock, start, pynchdb)
+            message = "Updated " + pynchdb
+            restartScreen()
+            clock['current'] = "None"
+            active = "None"
 
 
-            # Save today's hours
-            elif c == ord('S'):
-                pauseScreen()
-                start = updateClock(clock, start, pynchdb)
-                maxy, maxx = stdscr.getmaxyx()
-                stdscr.addstr(maxy - 1, 0, "Save clock as how many days ago: ")
-                daysago = int(stdscr.getstr(maxy - 1, 9, 50))
-                writedate = (datetime.datetime.now() - datetime.timedelta(days = daysago)).strftime("%Y-%m-%d")
-                for j, t  in clock['hours'].iteritems():
-                    if j in timesheet.keys():
-                        if writedate in timesheet[j]['date']:
-                            editTimesheet(timesheet, j, writedate, t, pynchdb)
-                        else:
-                            addToTimesheet(timesheet, j, writedate, t, pynchdb)
+        # Save today's hours
+        elif c == ord('S'):
+            pauseScreen()
+            start = updateClock(clock, start, pynchdb)
+            maxy, maxx = stdscr.getmaxyx()
+            stdscr.addstr(maxy - 1, 0, "Save clock as how many days ago: ")
+            daysago = int(stdscr.getstr(maxy - 1, 9, 50))
+            writedate = (datetime.datetime.now() - datetime.timedelta(days = daysago)).strftime("%Y-%m-%d")
+            for j, t  in clock['hours'].iteritems():
+                if j in timesheet.keys():
+                    if writedate in timesheet[j]['date']:
+                        editTimesheet(timesheet, j, writedate, t, pynchdb)
                     else:
                         addToTimesheet(timesheet, j, writedate, t, pynchdb)
+                else:
+                    addToTimesheet(timesheet, j, writedate, t, pynchdb)
 
-                # writeDateTimesheet(pynchdb, clock, writetime, timesheet)
-                clock['current'] = "None"
-                active = "None"
-                message = pynchdb + " updated"
-                restartScreen()
+            # writeDateTimesheet(pynchdb, clock, writetime, timesheet)
+            clock['current'] = "None"
+            active = "None"
+            message = pynchdb + " updated"
+            restartScreen()
 
-            # Reset all jobs to 0.0 hours
-            elif c == ord('R'):
-                pauseScreen()
-                printClock(clock, stdscr, active)
-                stdscr.addstr(maxy-1, 0, "Are you sure you wish to reset [y/n]? ")
-                c = stdscr.getch(maxy-1, 38)
-                if c == ord('y'):
-                    resetJobs(clock, pynchdb)
-                restartScreen()
+        # Reset all jobs to 0.0 hours
+        elif c == ord('R'):
+            pauseScreen()
+            printClock(clock, stdscr, active)
+            stdscr.addstr(maxy-1, 0, "Are you sure you wish to reset [y/n]? ")
+            c = stdscr.getch(maxy-1, 38)
+            if c == ord('y'):
+                resetJobs(clock, pynchdb)
+            restartScreen()
 
-            elif c == ord('T'):
-                if active != "None":
-                    start = updateClock(clock, start, pynchdb)
-                    eventLoopTimesheet(timesheet, clock, active, stdscr, pynchdb)
-                    restartScreen()
-                    start = updateClock(clock, start, pynchdb)
-
-
-            # Quit the program
-            elif c == ord('Q'):
+        elif c == ord('T'):
+            if active != "None":
                 start = updateClock(clock, start, pynchdb)
-                curses.nocbreak(); stdscr.keypad(0); curses.echo(); curses.endwin()
-                exit()
+                eventLoopTimesheet(timesheet, clock, active, stdscr, start, pynchdb)
+                restartScreen()
+                start = updateClock(clock, start, pynchdb)
+
+
+        # Quit the program
+        elif c == ord('Q'):
+            start = updateClock(clock, start, pynchdb)
+            curses.nocbreak(); stdscr.keypad(0); curses.echo(); curses.endwin()
+            exit()
 
 
 
-def eventLoopTimesheet(timesheet, clock, jobname, stdscr, pynchdb):
+def eventLoopTimesheet(timesheet, clock, jobname, stdscr, start, pynchdb):
     active = -1
     while 1:
         maxy, maxx = stdscr.getmaxyx()
@@ -156,6 +157,9 @@ def eventLoopTimesheet(timesheet, clock, jobname, stdscr, pynchdb):
         # note: indexing is backwards for timesheet
 
         # UP means more older means more negative
+        if c == curses.ERR:
+            continue
+
         if c == curses.KEY_UP or (c < 256 and chr(c) == 'k'):
             if -active < maxdates:
                 active += -1
@@ -218,3 +222,7 @@ def eventLoopTimesheet(timesheet, clock, jobname, stdscr, pynchdb):
         elif c == ord('C'):
             break
 
+        elif c == ord('Q'):
+            start = updateClock(clock, start, pynchdb)
+            curses.nocbreak(); stdscr.keypad(0); curses.echo(); curses.endwin()
+            exit()
