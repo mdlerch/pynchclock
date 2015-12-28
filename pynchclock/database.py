@@ -103,17 +103,6 @@ def readTimesheetDB(pynchdb):
     return timesheet
 
 
-def updateTimesheetDB(pynchdb, timesheet, jobname, date):
-    idx = timesheet[jobname]['date'].index(date)
-    conn = sqlite3.connect(pynchdb)
-    c = conn.cursor()
-    c.execute('UPDATE timesheet SET hours = ? WHERE job = ? AND jobdate = ?',
-              (timesheet[jobname]['hours'][idx], jobname, date))
-    conn.commit()
-    conn.close()
-
-
-
 def addToTimesheetDB(pynchdb, jobname, date, hours):
     conn = sqlite3.connect(pynchdb)
     c = conn.cursor()

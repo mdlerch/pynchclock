@@ -72,22 +72,25 @@ def printTimesheet(timesheet, clock, jobname, active, stdscr):
         if checkWindowSize(stdscr, len(examplestring), 5):
             return
 
-        if ndates > maxy - 2:
-            maxdates = maxy - 2
+        if ndates > maxy - 3:
+            maxdates = maxy - 3
         else:
             maxdates = ndates
+
+        # print jobname
+        stdscr.addstr(0, 0, "Timesheet for: " + jobname)
 
         # print historic hours
         for i in range(-maxdates, 0):
             t = timesheet[jobname]['hours'][i]
             h = t / 3600.0
             m = (h - math.floor(h)) * 60
-            statstring = "{0}: {1:02.0f}:{2:02.0f}".format(timesheet[jobname]['date'][i],
+            statstring = " {0} : {1:02.0f}:{2:02.0f}".format(timesheet[jobname]['date'][i],
                                                            math.floor(h), m)
             if i == active:
-                stdscr.addstr(i + maxdates, 0, statstring, curses.A_REVERSE)
+                stdscr.addstr(1 + i + maxdates, 0, statstring, curses.A_REVERSE)
             else:
-                stdscr.addstr(i + maxdates, 0, statstring)
+                stdscr.addstr(1 + i + maxdates, 0, statstring)
 
     else:
         active = 0
@@ -98,11 +101,11 @@ def printTimesheet(timesheet, clock, jobname, active, stdscr):
     t = clock['hours'][jobname]
     h = t / 3600.0
     m = (h - math.floor(h)) * 60
-    statstring = "{0}: {1:02.0f}:{2:02.0f}".format(todaydate, math.floor(h), m)
+    statstring = "({0}): {1:02.0f}:{2:02.0f}".format(todaydate, math.floor(h), m)
     if active == 0:
-        stdscr.addstr(maxdates, 0, statstring, curses.A_REVERSE)
+        stdscr.addstr(1 + maxdates, 0, statstring, curses.A_REVERSE)
     else:
-        stdscr.addstr(maxdates, 0, statstring)
+        stdscr.addstr(1 + maxdates, 0, statstring)
 
     stdscr.refresh()
 

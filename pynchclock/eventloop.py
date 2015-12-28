@@ -101,8 +101,19 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
             elif c == ord('S'):
                 pauseScreen()
                 start = updateClock(clock, start, pynchdb)
-                writedate = (datetime.datetime.now() - datetime.timedelta(days = 1)).strftime("%Y-%m-%d")
-                updateTimesheet(timesheet, clock, writedate, pynchdb)
+                maxy, maxx = stdscr.getmaxyx()
+                stdscr.addstr(maxy - 1, 0, "Save clock as how many days ago: ")
+                daysago = int(stdscr.getstr(maxy - 1, 9, 50))
+                writedate = (datetime.datetime.now() - datetime.timedelta(days = daysago)).strftime("%Y-%m-%d")
+                for j, t  in clock['hours'].iteritems():
+                    if j in timesheet.keys():
+                        if writedate in timesheet[j]['date']:
+                            editTimesheet(timesheet, j, writedate, t, pynchdb)
+                        else:
+                            addToTimesheet(timesheet, j, writedate, t, pynchdb)
+                    else:
+                        addToTimesheet(timesheet, j, writedate, t, pynchdb)
+
                 # writeDateTimesheet(pynchdb, clock, writetime, timesheet)
                 clock['current'] = "None"
                 active = "None"
