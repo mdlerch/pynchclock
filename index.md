@@ -19,23 +19,14 @@ pip install git+git://github.com/mdlerch/pynchclock.git
 Usage
 =====
 
-Components
-----------
-
-There are two components to `pynchclock`.
-The first is the component is the **clock** which stores _today's_ job names and
-hours.
-The second component is the **timesheet** which stores _historic_ job names,
-hours, and the dates of those hours.
-
-
 Controls
 --------
 
-### Main screen ###
+### Clock screen ###
 
 The main screen displays the **clock**.
-From the **clock**, use the below controls:
+The **clock** contains _today's_ jobs and their associated hours.
+From the **clock** screen, use the below controls:
 
 - Launch with `pynchclock`.
 - Scroll with `j`/`k` or `UP`/`DOWN`.
@@ -44,20 +35,29 @@ From the **clock**, use the below controls:
 - Start timing a job with `ENTER`.
 - Quickly pause (job == None) with `p`.
 - Reset all clock hours to 0.0 with `R`.
-- Update current clock hours to disk `U`.
-- Save current clock hours to the historic timesheet `S`.
-- Quit with `Q`.
+- Update current clock hours to disk with `U`.
+- Save current clock hours to the historic **timesheet** with `S`.
+- Write the clock to a csv with `W`.
+- Import a csv as the clock with `I`.
+- Quit the program with with with `Q`.
+- Switch to **timesheet** screen with `T`.
+- View a graphical display of a job's historic hours with `V`.
 
-### Edit screen ###
+### Timesheet screen ###
 
-The edit screen can be used to adjust recorded times.
-Enter the edit screen from the main screen with `E`.
+The timesheet screen displays the historic times for a selected job.
+From the timesheet screen, current (clock) and historic (timesheet) hours can
+be adjusted.
+Enter the timesheet screen from the main screen with `T`.
 
 - Scroll with `j`/`k` or `UP`/`DOWN`.
 - Edit the currently selected time with `ENTER`.
 - Add an additional date and hours with `A`.
 - Delete the selected entry with `D`.
-- Quit the edit screen and return to the main screen with `Q`.
+- Write the job's timesheet history with `W`.
+- Import the job's history from a csv with `I`.
+- Return to the clock screen with `C`.
+- Quit the program with `Q`.
 
 
 ### Graph screen ###
@@ -72,8 +72,6 @@ To do
 =====
 
 - Protect against illegal user input.
-- Save clock and timesheet to csv
-- Improve method of going from clock to timesheet (today's date? yesterday?  custom?)
 - Support configuration options
     - database file
     - keys
