@@ -5,6 +5,7 @@ from displaystats import *
 from printobjects import *
 from editclock import *
 from edittimesheet import *
+from csvfiles import *
 
 def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
     start = None
@@ -104,7 +105,7 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
             start = updateClock(clock, start, pynchdb)
             maxy, maxx = stdscr.getmaxyx()
             stdscr.addstr(maxy - 1, 0, "Save clock as how many days ago: ")
-            daysago = int(stdscr.getstr(maxy - 1, 9, 50))
+            daysago = int(stdscr.getstr(maxy - 1, 50, 50))
             writedate = (datetime.datetime.now() - datetime.timedelta(days = daysago)).strftime("%Y-%m-%d")
             for j, t  in clock['hours'].iteritems():
                 if j in timesheet.keys():
@@ -138,6 +139,20 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
                 restartScreen()
                 start = updateClock(clock, start, pynchdb)
 
+        elif c == ord('W'):
+            start = updateClock(clock, start, pynchdb)
+            writeClockCSV(clock, "clock.csv")
+            message = "Clock written to " + "clock.csv"
+
+        elif c == ord('I'):
+            pauseScreen()
+            stdscr.addstr(maxy-1, 0, "Clock source file: ")
+            infile = stdscr.getstr(maxy - 1, 20, 90)
+            readClockCSV(infile, clock, pynchdb)
+            start = updateClock(clock, start, pynchdb)
+            restartScreen()
+
+
 
         # Quit the program
         elif c == ord('Q'):
@@ -148,10 +163,18 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
 
 
 def eventLoopTimesheet(timesheet, clock, jobname, stdscr, start, pynchdb):
+    message = None
     active = -1
     while 1:
         maxy, maxx = stdscr.getmaxyx()
+
         maxdates = printTimesheet(timesheet, clock, jobname, active, stdscr)
+
+        if message:
+            stdscr.addstr(maxy - 1, 0, message)
+
+        message = None
+
         c = stdscr.getch()
 
         # note: indexing is backwards for timesheet
@@ -218,6 +241,16 @@ def eventLoopTimesheet(timesheet, clock, jobname, stdscr, start, pynchdb):
                 deleteFromTimesheet(timesheet, jobname, date, pynchdb)
                 active += 1
 
+        elif c == ord('W'):
+            writeTimesheetCSV(timesheet[jobname], "timesheet-" + jobname + ".csv")
+            message = "Timesheet written to " + "timesheet-" + jobname + ".csv"
+
+        elif c == ord('I'):
+            pauseScreen()
+            stdscr.addstr(maxy-1, 0, "Timesheet source file: ")
+            infile = stdscr.getstr(maxy - 1, 25, 90)
+            readTimesheetCSV(infile, timesheet, jobname, pynchdb)
+            restartScreen()
 
         elif c == ord('C'):
             break

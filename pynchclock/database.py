@@ -90,8 +90,11 @@ def readTimesheetDB(pynchdb):
     conn = sqlite3.connect(pynchdb)
     c = conn.cursor()
     timesheet = {}
+    joblist = []
     for row in c.execute('SELECT DISTINCT job FROM timesheet'):
-        jobname, = row
+        joblist.append(row[0])
+
+    for jobname in joblist:
         timesheet[jobname] = {'date' : [], 'hours' : []}
         for row in c.execute('SELECT jobdate, hours FROM timesheet WHERE job = ?', (jobname, )):
             date, hours = row
@@ -104,6 +107,9 @@ def readTimesheetDB(pynchdb):
 
 
 def addToTimesheetDB(pynchdb, jobname, date, hours):
+    print jobname
+    print date
+    print hours
     conn = sqlite3.connect(pynchdb)
     c = conn.cursor()
     c.execute("INSERT INTO timesheet VALUES (?, ?, ?)",
