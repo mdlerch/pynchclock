@@ -66,7 +66,9 @@ Enter the timesheet screen from the main screen with `T`.
 The graph screen provides a ascii plot of the timesheet for a particular job.
 Enter the graph screen from the main screen with `V`.
 
-- Return to the previous screen with any key.
+
+- Scroll with `j`/`k` or `UP`/`DOWN`.
+- Return to the previous screen with any `Q`.
 
 
 To do
