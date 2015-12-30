@@ -1,4 +1,4 @@
 all: index.html
 
-index.html: index.md kultiad.css
-	pandoc index.md -s -c kultiad.css -o $@
+index.html: README.md kultiad.css
+	pandoc README.md -s -c kultiad.css -o $@

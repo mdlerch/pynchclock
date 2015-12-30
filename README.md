@@ -51,7 +51,7 @@ be adjusted.
 Enter the timesheet screen from the main screen with `T`.
 
 - Scroll with `j`/`k` or `UP`/`DOWN`.
-- Edit the currently selected time with `ENTER`.
+- Edit the currently selected time with `E`.
 - Add an additional date and hours with `A`.
 - Delete the selected entry with `D`.
 - Write the job's timesheet history with `W`.
