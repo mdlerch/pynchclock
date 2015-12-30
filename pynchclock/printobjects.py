@@ -57,10 +57,13 @@ def printClock(clock, stdscr, active):
 
     stdscr.refresh()
 
-def printTimesheet(timesheet, clock, jobname, active, stdscr):
+def printTimesheet(timesheet, clock, jobname, active, first, stdscr):
     stdscr.clear()
 
-    maxdates = 0
+    # dates[-last] is the oldest date to display
+    # dates[-first] is the most recent date to display
+    last = 1
+    ndates = 0
 
     # print jobname
     stdscr.addstr(0, 0, "Timesheet for: " + jobname)
@@ -77,7 +80,6 @@ def printTimesheet(timesheet, clock, jobname, active, stdscr):
     else:
         stdscr.addstr(1, 0, statstring)
 
-    stdscr.refresh()
 
     if jobname in timesheet.keys():
         ndates = len(timesheet[jobname]['date'])
@@ -89,26 +91,30 @@ def printTimesheet(timesheet, clock, jobname, active, stdscr):
         if checkWindowSize(stdscr, len(examplestring), 5):
             return
 
+        # most dates to display is maxy - 3 (title, today, message)
         if ndates > maxy - 3:
-            maxdates = maxy - 3
+            last = (first - 1) + (maxy - 3)
         else:
-            maxdates = ndates
-
+            first = 1
+            last = ndates
 
         # print historic hours
-        for i in range(0, maxdates):
-            t = timesheet[jobname]['hours'][-(i + 1)]
+        for i in range(first, last + 1):
+            row = i - first + 2
+            t = timesheet[jobname]['hours'][-i]
             h = t / 3600.0
             m = (h - math.floor(h)) * 60
-            statstring = " {0} : {1:02.0f}:{2:02.0f}".format(timesheet[jobname]['date'][-(i + 1)],
+            statstring = " {0} : {1:02.0f}:{2:02.0f}".format(timesheet[jobname]['date'][-i],
                                                            math.floor(h), m)
-            if i + 1 == active:
-                stdscr.addstr(i + 2, 0, statstring, curses.A_REVERSE)
+            if i == active:
+                stdscr.addstr(row, 0, statstring, curses.A_REVERSE)
             else:
-                stdscr.addstr(i + 2, 0, statstring)
+                stdscr.addstr(row, 0, statstring)
 
     else:
         active = 0
 
-    return maxdates
+    stdscr.refresh()
+
+    return (first, last, ndates)
 

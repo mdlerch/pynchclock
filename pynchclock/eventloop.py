@@ -173,12 +173,13 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
 
 
 def eventLoopTimesheet(timesheet, clock, jobname, stdscr, start, pynchdb):
-    message = None
     active = 0
+    first = 1
+    message = None
     while 1:
         maxy, maxx = stdscr.getmaxyx()
 
-        maxdates = printTimesheet(timesheet, clock, jobname, active, stdscr)
+        first, last, ndates = printTimesheet(timesheet, clock, jobname, active, first, stdscr)
 
         if message:
             stdscr.addstr(maxy - 1, 0, message)
@@ -196,10 +197,16 @@ def eventLoopTimesheet(timesheet, clock, jobname, stdscr, start, pynchdb):
         if c == curses.KEY_UP or (c < 256 and chr(c) == 'k'):
             if active > 0:
                 active += -1
+            # if active is less than first and first is the beginning
+            if active < first and first > 1:
+                first += -1
         # DOWN means more recent means less negative
         elif c == curses.KEY_DOWN or (c < 256 and chr(c) == 'j'):
-            if active < maxdates:
+            if active < ndates:
                 active += 1
+            # if active is greater than last shift
+            if active > last:
+                first += 1
         elif c == ord('E'):
             pauseScreen()
             if -active > 0:
@@ -209,7 +216,7 @@ def eventLoopTimesheet(timesheet, clock, jobname, stdscr, start, pynchdb):
                 stdscr.addstr(maxy - 1, 0, "New MINUTES (MM): ")
                 newMINS = int(stdscr.getstr(maxy - 1, 18, 30))
                 newhours = newHOURS * 3600 + newMINS * 60
-                idx = maxdates + active
+                idx = ndates + active
                 date = timesheet[jobname]['date'][idx]
                 editTimesheet(timesheet, jobname, date, newhours, pynchdb)
             if active == 0:
@@ -246,10 +253,9 @@ def eventLoopTimesheet(timesheet, clock, jobname, stdscr, start, pynchdb):
 
         elif c == ord('D'):
             if active != 0:
-                idx = maxdates + active
-                date = timesheet[jobname]['date'][idx]
+                date = timesheet[jobname]['date'][active]
                 deleteFromTimesheet(timesheet, jobname, date, pynchdb)
-                active += 1
+                active += -1
 
         elif c == ord('W'):
             writeTimesheetCSV(timesheet[jobname], "timesheet-" + jobname + ".csv")
