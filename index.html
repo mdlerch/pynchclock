@@ -19,11 +19,9 @@
 <h1 id="installation">Installation</h1>
 <pre><code>pip install git+git://github.com/mdlerch/pynchclock.git</code></pre>
 <h1 id="usage">Usage</h1>
-<h2 id="components">Components</h2>
-<p>There are two components to <code>pynchclock</code>. The first is the component is the <strong>clock</strong> which stores <em>today's</em> job names and hours. The second component is the <strong>timesheet</strong> which stores <em>historic</em> job names, hours, and the dates of those hours.</p>
 <h2 id="controls">Controls</h2>
-<h3 id="main-screen">Main screen</h3>
-<p>The main screen displays the <strong>clock</strong>. From the <strong>clock</strong>, use the below controls:</p>
+<h3 id="clock-screen">Clock screen</h3>
+<p>The main screen displays the <strong>clock</strong>. The <strong>clock</strong> contains <em>today's</em> jobs and their associated hours. From the <strong>clock</strong> screen, use the below controls:</p>
 <ul>
 <li>Launch with <code>pynchclock</code>.</li>
 <li>Scroll with <code>j</code>/<code>k</code> or <code>UP</code>/<code>DOWN</code>.</li>
@@ -32,18 +30,25 @@
 <li>Start timing a job with <code>ENTER</code>.</li>
 <li>Quickly pause (job == None) with <code>p</code>.</li>
 <li>Reset all clock hours to 0.0 with <code>R</code>.</li>
-<li>Update current clock hours to disk <code>U</code>.</li>
-<li>Save current clock hours to the historic timesheet <code>S</code>.</li>
-<li>Quit with <code>Q</code>.</li>
+<li>Update current clock hours to disk with <code>U</code>.</li>
+<li>Save current clock hours to the historic <strong>timesheet</strong> with <code>S</code>.</li>
+<li>Write the clock to a csv with <code>W</code>.</li>
+<li>Import a csv as the clock with <code>I</code>.</li>
+<li>Quit the program with with with <code>Q</code>.</li>
+<li>Switch to <strong>timesheet</strong> screen with <code>T</code>.</li>
+<li>View a graphical display of a job's historic hours with <code>V</code>.</li>
 </ul>
-<h3 id="edit-screen">Edit screen</h3>
-<p>The edit screen can be used to adjust recorded times. Enter the edit screen from the main screen with <code>E</code>.</p>
+<h3 id="timesheet-screen">Timesheet screen</h3>
+<p>The timesheet screen displays the historic times for a selected job. From the timesheet screen, current (clock) and historic (timesheet) hours can be adjusted. Enter the timesheet screen from the main screen with <code>T</code>.</p>
 <ul>
 <li>Scroll with <code>j</code>/<code>k</code> or <code>UP</code>/<code>DOWN</code>.</li>
 <li>Edit the currently selected time with <code>ENTER</code>.</li>
 <li>Add an additional date and hours with <code>A</code>.</li>
 <li>Delete the selected entry with <code>D</code>.</li>
-<li>Quit the edit screen and return to the main screen with <code>Q</code>.</li>
+<li>Write the job's timesheet history with <code>W</code>.</li>
+<li>Import the job's history from a csv with <code>I</code>.</li>
+<li>Return to the clock screen with <code>C</code>.</li>
+<li>Quit the program with <code>Q</code>.</li>
 </ul>
 <h3 id="graph-screen">Graph screen</h3>
 <p>The graph screen provides a ascii plot of the timesheet for a particular job. Enter the graph screen from the main screen with <code>V</code>.</p>
@@ -53,8 +58,6 @@
 <h1 id="to-do">To do</h1>
 <ul>
 <li>Protect against illegal user input.</li>
-<li>Save clock and timesheet to csv</li>
-<li>Improve method of going from clock to timesheet (today's date? yesterday? custom?)</li>
 <li>Support configuration options
 <ul>
 <li>database file</li>
