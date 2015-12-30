@@ -50,8 +50,9 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
                 active = clock['order'][i]
 
         # Selecting a job
-        elif c == ord('E'):
+        elif is_enter(c):
             start = updateClock(clock, start, pynchdb)
+            updateClockOrderDB(pynchdb, clock)
             clock['current'] = active
 
         # Pause
@@ -97,6 +98,14 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
             restartScreen()
             clock['current'] = "None"
             active = "None"
+
+        # move jobs
+        elif c == ord('J'):
+            moveJob(clock, active, 1, pynchdb)
+
+        elif c == ord('K'):
+            moveJob(clock, active, -1, pynchdb)
+
 
 
         # Save today's hours
@@ -156,6 +165,7 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
 
         # Quit the program
         elif c == ord('Q'):
+            updateClockOrderDB(pynchdb, clock)
             start = updateClock(clock, start, pynchdb)
             curses.nocbreak(); stdscr.keypad(0); curses.echo(); curses.endwin()
             exit()
@@ -164,7 +174,7 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
 
 def eventLoopTimesheet(timesheet, clock, jobname, stdscr, start, pynchdb):
     message = None
-    active = -1
+    active = 0
     while 1:
         maxy, maxx = stdscr.getmaxyx()
 
@@ -184,13 +194,13 @@ def eventLoopTimesheet(timesheet, clock, jobname, stdscr, start, pynchdb):
             continue
 
         if c == curses.KEY_UP or (c < 256 and chr(c) == 'k'):
-            if -active < maxdates:
+            if active > 0:
                 active += -1
         # DOWN means more recent means less negative
         elif c == curses.KEY_DOWN or (c < 256 and chr(c) == 'j'):
-            if active < 0:
+            if active < maxdates:
                 active += 1
-        elif is_enter(c):
+        elif c == ord('E'):
             pauseScreen()
             if -active > 0:
                 stdscr.addstr(maxy - 1, 0, "New HOURS (HH): ")
@@ -255,7 +265,15 @@ def eventLoopTimesheet(timesheet, clock, jobname, stdscr, start, pynchdb):
         elif c == ord('C'):
             break
 
+        # Show job stats
+        elif c == ord('V'):
+            if jobname in timesheet.keys():
+                displayStats(timesheet, clock, jobname, stdscr)
+            else:
+                message = "No stats on " + active
+
         elif c == ord('Q'):
             start = updateClock(clock, start, pynchdb)
+            updateClockOrderDB(pynchdb, clock)
             curses.nocbreak(); stdscr.keypad(0); curses.echo(); curses.endwin()
             exit()

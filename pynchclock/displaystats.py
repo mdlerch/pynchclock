@@ -9,6 +9,8 @@ def displayStats(timesheet, clock, jobname, stdscr):
 
     maxy, maxx = stdscr.getmaxyx()
 
+    stdscr.addstr(0, 0, "Stats for: " + jobname)
+
     if checkWindowSize(stdscr, 10, 5):
         return
 
@@ -19,21 +21,29 @@ def displayStats(timesheet, clock, jobname, stdscr):
 
     maxtime = max(timesheet[jobname]['hours'])
     maxtime = max(maxtime, clock['hours'][jobname])
-    # alltimes.append(clock['hours'][jobname])
 
-    scale = (maxx - 2.0) / max(maxtime, 1)
+    # if no jobs longer than 1 minute, set maxtime to 1 minute
+    if maxtime < 60:
+        maxtime = 60
 
-    # plot historic hours
-    for i in range(-maxdates, 0):
-        chars = int(round(timesheet[jobname]['hours'][i] * scale)) - 11
-        plotstring = " {0}  ".format(timesheet[jobname]['date'][i]) + "=" * chars
-        stdscr.addstr(i + maxdates, 0, plotstring)
+    # subtract 14 for room for date
+    scale = (maxx - 14.0) / maxtime
 
     # print current hours
-    chars = int(round(clock['hours'][jobname] * scale)) - 11
+    # subtract 11 for date info
+    nplot = int(round(clock['hours'][jobname] * scale))
     today = datetime.datetime.now()
     todaydate = today.strftime("%Y-%m-%d")
-    plotstring = "({0}) ".format(todaydate) + "=" * chars
-    stdscr.addstr(maxdates, 0, plotstring)
+    plotstring = "({0}) ".format(todaydate) + "=" * nplot
+    stdscr.addstr(1, 0, plotstring)
+
+    # plot historic hours
+    for i in range(0, maxdates):
+        jobhours = timesheet[jobname]['hours'][-(i + 1)]
+        jobdate = timesheet[jobname]['date'][-(i + 1)]
+        nplot = int(round(jobhours * scale))
+        plotstring = " {0}  ".format(jobdate) + "=" * nplot
+        stdscr.addstr(i + 2, 0, plotstring)
+
 
     c = stdscr.getch()

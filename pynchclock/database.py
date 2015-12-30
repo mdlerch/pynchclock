@@ -107,9 +107,6 @@ def readTimesheetDB(pynchdb):
 
 
 def addToTimesheetDB(pynchdb, jobname, date, hours):
-    print jobname
-    print date
-    print hours
     conn = sqlite3.connect(pynchdb)
     c = conn.cursor()
     c.execute("INSERT INTO timesheet VALUES (?, ?, ?)",

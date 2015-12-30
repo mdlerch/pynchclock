@@ -22,6 +22,20 @@ def deleteFromClock(clock, stdscr, active, pynchdb):
         clock['order'].remove(active)
         deleteFromClockDB(pynchdb, active)
 
+def moveJob(clock, jobname, delta, pynchdb):
+    njobs = len(clock['order'])
+    idx = clock['order'].index(jobname)
+    if (idx <= 0 and delta < 0) or (idx >= njobs - 2 and delta > 0):
+        return
+    newidx = idx + delta
+    if newidx < 0:
+        newidx = 0
+    if newidx >= njobs - 1:
+        newidx = njobs - 2
+    clock['order'].pop(idx)
+    clock['order'] = clock['order'][:newidx] + [jobname] + clock['order'][newidx:]
+
+
 def resetJobs(clock, pynchdb):
     for j, t in clock['hours'].iteritems():
         clock['hours'][j] = 0.0
