@@ -57,6 +57,7 @@ Enter the timesheet screen from the main screen with `T`.
 - Write the job's timesheet history with `W`.
 - Import the job's history from a csv with `I`.
 - Return to the clock screen with `C`.
+- View a graphical display of the job's historic hours with `V`.
 - Quit the program with `Q`.
 
 
@@ -65,7 +66,7 @@ Enter the timesheet screen from the main screen with `T`.
 The graph screen provides a ascii plot of the timesheet for a particular job.
 Enter the graph screen from the main screen with `V`.
 
-- Return to the main screen with any key.
+- Return to the previous screen with any key.
 
 
 To do
