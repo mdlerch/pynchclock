@@ -50,7 +50,7 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
                 active = clock['order'][i]
 
         # Selecting a job
-        elif is_enter(c):
+        elif c == ord('E'):
             start = updateClock(clock, start, pynchdb)
             clock['current'] = active
 
