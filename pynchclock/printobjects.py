@@ -15,7 +15,7 @@ def restartScreen():
     curses.curs_set(0)
 
 
-def printClock(clock, stdscr, active):
+def printClock(clock, stdscr, selected):
     stdscr.clear()
     job_name_length = []
     for job in clock['order']:
@@ -46,7 +46,7 @@ def printClock(clock, stdscr, active):
         else:
             jobstring = "{1}. {0}".format(job, i+1)
 
-        if clock['order'][i] == active:
+        if clock['order'][i] == selected:
             stdscr.addstr(i, 0, jobstring, curses.A_REVERSE)
         elif clock['order'][i] == clock['current']:
             stdscr.addstr(i, 0, jobstring, curses.color_pair(1))
@@ -57,7 +57,7 @@ def printClock(clock, stdscr, active):
 
     stdscr.refresh()
 
-def printTimesheet(timesheet, clock, jobname, active, first, stdscr):
+def printTimesheet(timesheet, clock, jobname, selected, first, stdscr):
     stdscr.clear()
 
     # dates[-last] is the oldest date to display
@@ -75,7 +75,7 @@ def printTimesheet(timesheet, clock, jobname, active, first, stdscr):
     h = t / 3600.0
     m = (h - math.floor(h)) * 60
     statstring = "({0}): {1:02.0f}:{2:02.0f}".format(todaydate, math.floor(h), m)
-    if active == 0:
+    if selected == 0:
         stdscr.addstr(1, 0, statstring, curses.A_REVERSE)
     else:
         stdscr.addstr(1, 0, statstring)
@@ -92,11 +92,7 @@ def printTimesheet(timesheet, clock, jobname, active, first, stdscr):
             return
 
         # most dates to display is maxy - 3 (title, today, message)
-        if ndates > maxy - 3:
-            last = (first - 1) + (maxy - 3)
-        else:
-            first = 1
-            last = ndates
+        last = min(ndates, (first - 1) + (maxy - 3))
 
         # print historic hours
         for i in range(first, last + 1):
@@ -106,13 +102,13 @@ def printTimesheet(timesheet, clock, jobname, active, first, stdscr):
             m = (h - math.floor(h)) * 60
             statstring = " {0} : {1:02.0f}:{2:02.0f}".format(timesheet[jobname]['date'][-i],
                                                            math.floor(h), m)
-            if i == active:
+            if i == selected:
                 stdscr.addstr(row, 0, statstring, curses.A_REVERSE)
             else:
                 stdscr.addstr(row, 0, statstring)
 
     else:
-        active = 0
+        selected = 0
 
     stdscr.refresh()
 

@@ -5,7 +5,7 @@ from windowcheck import *
 
 def displayStats(timesheet, clock, jobname, stdscr):
 
-    active = 0
+    selected = 0
 
     first = 1
     last = 1
@@ -50,7 +50,7 @@ def displayStats(timesheet, clock, jobname, stdscr):
         today = datetime.datetime.now()
         todaydate = today.strftime("%Y-%m-%d")
         plotstring = "({0}) ".format(todaydate) + "=" * nplot
-        if active == 0:
+        if selected == 0:
             stdscr.addstr(1, 0, plotstring, curses.A_REVERSE)
         else:
             stdscr.addstr(1, 0, plotstring)
@@ -63,7 +63,7 @@ def displayStats(timesheet, clock, jobname, stdscr):
             jobdate = timesheet[jobname]['date'][-i]
             nplot = int(round(jobhours * scale))
             plotstring = " {0}  ".format(jobdate) + "=" * nplot
-            if i == active:
+            if i == selected:
                 stdscr.addstr(row, 0, plotstring, curses.A_REVERSE)
             else:
                 stdscr.addstr(row, 0, plotstring)
@@ -71,17 +71,17 @@ def displayStats(timesheet, clock, jobname, stdscr):
         c = stdscr.getch()
 
         if c == curses.KEY_UP or (c < 256 and chr(c) == 'k'):
-            if active > 0:
-                active += -1
-            # if active is less than first and first is the beginning
-            if active < first and first > 1:
+            if selected > 0:
+                selected += -1
+            # if selected is less than first and first is the beginning
+            if selected < first and first > 1:
                 first += -1
         # DOWN means more recent means less negative
         elif c == curses.KEY_DOWN or (c < 256 and chr(c) == 'j'):
-            if active < ndates:
-                active += 1
-            # if active is greater than last shift
-            if active > last:
+            if selected < ndates:
+                selected += 1
+            # if selected is greater than last shift
+            if selected > last:
                 first += 1
 
         if c == ord('Q'):

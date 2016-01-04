@@ -1,26 +1,26 @@
 from database import *
 import time
 
-def addToClock(clock, stdscr, active, pynchdb):
+def addToClock(clock, stdscr, selected, pynchdb):
     maxy, maxx = stdscr.getmaxyx()
     stdscr.addstr(maxy - 1, 0, "New job: ")
     newjob = stdscr.getstr(maxy - 1, 9, 30)
     clock['hours'][newjob] = 0.0
-    idx = clock['order'].index(active)
+    idx = clock['order'].index(selected)
     clock['order'].insert(idx, newjob)
     addToClockDB(pynchdb, clock, newjob)
 
 
-def deleteFromClock(clock, stdscr, active, pynchdb):
+def deleteFromClock(clock, stdscr, selected, pynchdb):
     maxy, maxx = stdscr.getmaxyx()
-    stdscr.addstr(maxy - 1, 0, "Are you sure you wish to delete " + active + " [y/n]? ")
+    stdscr.addstr(maxy - 1, 0, "Are you sure you wish to delete " + selected + " [y/n]? ")
     c = stdscr.getch(maxy - 1, 50)
     if c == ord('y'):
-        if clock['current'] == active:
+        if clock['current'] == selected:
             clock['current'] = "None"
-        clock['hours'].pop(active)
-        clock['order'].remove(active)
-        deleteFromClockDB(pynchdb, active)
+        clock['hours'].pop(selected)
+        clock['order'].remove(selected)
+        deleteFromClockDB(pynchdb, selected)
 
 def moveJob(clock, jobname, delta, pynchdb):
     njobs = len(clock['order'])

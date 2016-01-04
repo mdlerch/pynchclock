@@ -9,14 +9,14 @@ from csvfiles import *
 
 def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
     start = None
-    active = clock['current']
+    selected = clock['current']
     message = None
     icon_shift = 1
 
     while 1:
         maxy, maxx = stdscr.getmaxyx()
 
-        printClock(clock, stdscr, active)
+        printClock(clock, stdscr, selected)
 
         if message:
             stdscr.addstr(maxy - 1, 0, message)
@@ -31,7 +31,7 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
         icon_shift = 1
 
 
-        i = clock['order'].index(active)
+        i = clock['order'].index(selected)
         njobs = len(clock['hours'].keys())
         c = stdscr.getch()
 
@@ -41,53 +41,53 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
 
         # Moving up or down
         if c == curses.KEY_UP or (c < 256 and chr(c) == 'k'):
-            if clock['order'].index(active) > 0:
+            if clock['order'].index(selected) > 0:
                 i = i - 1
-                active = clock['order'][i]
+                selected = clock['order'][i]
         elif c == curses.KEY_DOWN or (c < 256 and chr(c) == 'j'):
-            if clock['order'].index(active) < njobs - 1:
+            if clock['order'].index(selected) < njobs - 1:
                 i = i + 1
-                active = clock['order'][i]
+                selected = clock['order'][i]
 
         # Selecting a job
         elif is_enter(c):
             start = updateClock(clock, start, pynchdb)
             updateClockOrderDB(pynchdb, clock)
-            clock['current'] = active
+            clock['current'] = selected
 
         # Pause
         elif c == ord('p'):
             start = updateClock(clock, start, pynchdb)
-            active = "None"
-            clock['current'] = active
+            selected = "None"
+            clock['current'] = selected
 
         # Add a new job
         elif c == ord('A'):
             start = updateClock(clock, start, pynchdb)
             clock['current'] = "None"
             pauseScreen()
-            addToClock(clock, stdscr, active, pynchdb)
+            addToClock(clock, stdscr, selected, pynchdb)
             restartScreen()
 
         # Delete a job
         elif c == ord('D'):
             pauseScreen()
             start = updateClock(clock, start, pynchdb)
-            if active == "None":
+            if selected == "None":
                 message = "Cannot delete `None`"
             else:
-                deleteFromClock(clock, stdscr, active, pynchdb)
-            active = "None"
+                deleteFromClock(clock, stdscr, selected, pynchdb)
+            selected = "None"
             restartScreen()
 
         # Show job stats
         elif c == ord('V'):
-            if active != "None":
+            if selected != "None":
                 start = updateClock(clock, start, pynchdb)
-                if active in timesheet.keys():
-                    displayStats(timesheet, clock, active, stdscr)
+                if selected in timesheet.keys():
+                    displayStats(timesheet, clock, selected, stdscr)
                 else:
-                    message = "No stats on " + active
+                    message = "No stats on " + selected
                 start = updateClock(clock, start, pynchdb)
 
         # Update jobs list
@@ -97,14 +97,14 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
             message = "Updated " + pynchdb
             restartScreen()
             clock['current'] = "None"
-            active = "None"
+            selected = "None"
 
         # move jobs
         elif c == ord('J'):
-            moveJob(clock, active, 1, pynchdb)
+            moveJob(clock, selected, 1, pynchdb)
 
         elif c == ord('K'):
-            moveJob(clock, active, -1, pynchdb)
+            moveJob(clock, selected, -1, pynchdb)
 
 
 
@@ -127,14 +127,14 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
 
             # writeDateTimesheet(pynchdb, clock, writetime, timesheet)
             clock['current'] = "None"
-            active = "None"
+            selected = "None"
             message = pynchdb + " updated"
             restartScreen()
 
         # Reset all jobs to 0.0 hours
         elif c == ord('R'):
             pauseScreen()
-            printClock(clock, stdscr, active)
+            printClock(clock, stdscr, selected)
             stdscr.addstr(maxy-1, 0, "Are you sure you wish to reset [y/n]? ")
             c = stdscr.getch(maxy-1, 38)
             if c == ord('y'):
@@ -142,9 +142,9 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
             restartScreen()
 
         elif c == ord('T'):
-            if active != "None":
+            if selected != "None":
                 start = updateClock(clock, start, pynchdb)
-                eventLoopTimesheet(timesheet, clock, active, stdscr, start, pynchdb)
+                eventLoopTimesheet(timesheet, clock, selected, stdscr, start, pynchdb)
                 restartScreen()
                 start = updateClock(clock, start, pynchdb)
 
@@ -173,18 +173,19 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
 
 
 def eventLoopTimesheet(timesheet, clock, jobname, stdscr, start, pynchdb):
-    active = 0
+    selected = 0
     first = 1
     message = None
     while 1:
         maxy, maxx = stdscr.getmaxyx()
 
-        first, last, ndates = printTimesheet(timesheet, clock, jobname, active, first, stdscr)
+        first, last, ndates = printTimesheet(timesheet, clock, jobname, selected, first, stdscr)
 
         if message:
             stdscr.addstr(maxy - 1, 0, message)
 
         message = None
+        # message = "{0}, {1}, {2}".format(first, last, ndates)
 
         c = stdscr.getch()
 
@@ -195,31 +196,31 @@ def eventLoopTimesheet(timesheet, clock, jobname, stdscr, start, pynchdb):
             continue
 
         if c == curses.KEY_UP or (c < 256 and chr(c) == 'k'):
-            if active > 0:
-                active += -1
-            # if active is less than first and first is the beginning
-            if active < first and first > 1:
+            if selected > 0:
+                selected += -1
+            # if selected is less than first and first is the beginning
+            if selected < first and first > 1:
                 first += -1
         # DOWN means more recent means less negative
         elif c == curses.KEY_DOWN or (c < 256 and chr(c) == 'j'):
-            if active < ndates:
-                active += 1
-            # if active is greater than last shift
-            if active > last:
+            if selected < ndates:
+                selected += 1
+            # if selected is greater than last shift
+            if selected > last:
                 first += 1
         elif c == ord('E'):
             pauseScreen()
-            if -active > 0:
+            if -selected > 0:
                 stdscr.addstr(maxy - 1, 0, "New HOURS (HH): ")
                 newHOURS = int(stdscr.getstr(maxy - 1, 16, 30))
                 stdscr.addstr(maxy - 1, 0, " " * (maxx - 1))
                 stdscr.addstr(maxy - 1, 0, "New MINUTES (MM): ")
                 newMINS = int(stdscr.getstr(maxy - 1, 18, 30))
                 newhours = newHOURS * 3600 + newMINS * 60
-                idx = ndates + active
+                idx = ndates + selected
                 date = timesheet[jobname]['date'][idx]
                 editTimesheet(timesheet, jobname, date, newhours, pynchdb)
-            if active == 0:
+            if selected == 0:
                 stdscr.addstr(maxy - 1, 0, "New HOURS (HH): ")
                 newHOURS = int(stdscr.getstr(maxy - 1, 16, 30))
                 stdscr.addstr(maxy - 1, 0, " " * (maxx - 1))
@@ -252,10 +253,11 @@ def eventLoopTimesheet(timesheet, clock, jobname, stdscr, start, pynchdb):
             restartScreen()
 
         elif c == ord('D'):
-            if active != 0:
-                date = timesheet[jobname]['date'][active]
+            if selected != 0:
+                date = timesheet[jobname]['date'][-selected]
                 deleteFromTimesheet(timesheet, jobname, date, pynchdb)
-                active += -1
+            if selected == ndates:
+                selected += -1
 
         elif c == ord('W'):
             writeTimesheetCSV(timesheet[jobname], "timesheet-" + jobname + ".csv")
@@ -276,7 +278,7 @@ def eventLoopTimesheet(timesheet, clock, jobname, stdscr, start, pynchdb):
             if jobname in timesheet.keys():
                 displayStats(timesheet, clock, jobname, stdscr)
             else:
-                message = "No stats on " + active
+                message = "No stats on " + selected
 
         elif c == ord('Q'):
             start = updateClock(clock, start, pynchdb)
