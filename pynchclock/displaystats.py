@@ -27,7 +27,10 @@ def displayStats(timesheet, clock, jobname, stdscr):
         else:
             first = 1
             last = ndates
-        maxtime = max(timesheet[jobname]['hours'][-last:-first])
+        if first != last:
+            maxtime = max(timesheet[jobname]['hours'][-last:-first])
+        else:
+            maxtime = timesheet[jobname]['hours'][0]
         maxtime = max(maxtime, clock['hours'][jobname])
         # if no jobs longer than 1 minute, set maxtime to 1 minute
         if maxtime < 60:
