@@ -49,6 +49,15 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
                 i = i + 1
                 selected = clock['order'][i]
 
+        # Jump to top of list
+        elif c == ord('g'):
+            selected = clock['order'][0]
+
+        # Jump to bottom of list
+        elif c == ord('G'):
+            selected = clock['order'][-1]
+
+
         # Selecting a job
         elif is_enter(c):
             start = updateClock(clock, start, pynchdb)
@@ -107,7 +116,6 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
 
         elif c == ord('K'):
             moveJob(clock, selected, -1, pynchdb)
-
 
 
         # Save today's hours
@@ -211,6 +219,14 @@ def eventLoopTimesheet(timesheet, clock, jobname, stdscr, start, pynchdb):
             # if selected is greater than last shift
             if selected > last:
                 first += 1
+
+        elif c == ord('g'):
+            selected = 0
+            first = 1
+        elif c == ord('G'):
+            selected = ndates
+            first = ndates - (last - first)
+
         elif c == ord('E'):
             pauseScreen()
             if -selected > 0:
