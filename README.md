@@ -30,6 +30,7 @@ From the **clock** screen, use the below controls:
 
 - Launch with `pynchclock`.
 - Scroll with `j`/`k` or `UP`/`DOWN`.
+- Jump to top or bottom with `g` or `G`.
 - Add new job in place with `A`.
 - Delete a job with `D`
 - Start timing a job with `ENTER`.
@@ -51,6 +52,7 @@ be adjusted.
 Enter the timesheet screen from the main screen with `T`.
 
 - Scroll with `j`/`k` or `UP`/`DOWN`.
+- Jump to top or bottom with `g` or `G`.
 - Edit the currently selected time with `E`.
 - Add an additional date and hours with `A`.
 - Delete the selected entry with `D`.
