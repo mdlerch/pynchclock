@@ -1,10 +1,10 @@
 from database import *
+from ui import *
 import time
 
+
 def addToClock(clock, stdscr, selected, pynchdb):
-    maxy, maxx = stdscr.getmaxyx()
-    stdscr.addstr(maxy - 1, 0, "New job: ")
-    newjob = stdscr.getstr(maxy - 1, 9, 30)
+    newjob = getString(stdscr, "New job:", 30)
     clock['hours'][newjob] = 0.0
     idx = clock['order'].index(selected)
     clock['order'].insert(idx, newjob)

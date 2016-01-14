@@ -155,8 +155,7 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
 
         elif c == ord('I'):
             pauseScreen()
-            stdscr.addstr(maxy-1, 0, "Clock source file: ")
-            infile = stdscr.getstr(maxy - 1, 20, 90)
+            infile = getString(stdscr, "Clock source file:", 90)
             readClockCSV(infile, clock, pynchdb)
             start = updateClock(clock, start, pynchdb)
             restartScreen()
@@ -211,44 +210,29 @@ def eventLoopTimesheet(timesheet, clock, jobname, stdscr, start, pynchdb):
         elif c == ord('E'):
             pauseScreen()
             if -selected > 0:
-                stdscr.addstr(maxy - 1, 0, "New HOURS (HH): ")
-                newHOURS = int(stdscr.getstr(maxy - 1, 16, 30))
-                stdscr.addstr(maxy - 1, 0, " " * (maxx - 1))
-                stdscr.addstr(maxy - 1, 0, "New MINUTES (MM): ")
-                newMINS = int(stdscr.getstr(maxy - 1, 18, 30))
-                newhours = newHOURS * 3600 + newMINS * 60
+                newHOURS = getInt(stdscr, "New hours (HH):", 0, 24)
+                newMINS = getInt(stdscr, "New minutes (MM):", 0, 60)
+                newTIME = newHOURS * 3600 + newMINS * 60
                 idx = ndates + selected
                 date = timesheet[jobname]['date'][idx]
-                editTimesheet(timesheet, jobname, date, newhours, pynchdb)
+                editTimesheet(timesheet, jobname, date, newTIME, pynchdb)
             if selected == 0:
-                stdscr.addstr(maxy - 1, 0, "New HOURS (HH): ")
-                newHOURS = int(stdscr.getstr(maxy - 1, 16, 30))
-                stdscr.addstr(maxy - 1, 0, " " * (maxx - 1))
-                stdscr.addstr(maxy - 1, 0, "New MINUTES (MM): ")
-                newMINS = int(stdscr.getstr(maxy - 1, 18, 30))
-                newhours = newHOURS * 3600 + newMINS * 60
-                editClock(clock, jobname, newhours, pynchdb)
+                newHOURS = getInt(stdscr, "New hours (HH):", 0, 24)
+                newMINS = getInt(stdscr, "New minutes (MM)", 0, 60)
+                newTIME = newHOURS * 3600 + newMINS * 60
+                editClock(clock, jobname, newTIME, pynchdb)
             restartScreen()
         elif c == ord('A'):
             pauseScreen()
-            stdscr.addstr(maxy - 1, 0, "New HOURS (HH): ")
-            newHOURS = int(stdscr.getstr(maxy - 1, 16, 30))
+            newHOURS = getInt(stdscr, "New hours (HH):", 0, 24)
+            newMINS = getInt(stdscr, "New minutes (MM):", 0, 60)
+            newYEAR = getInt(stdscr, "New year (YYYY):", 1984, 3000)
+            newMONTH = getInt(stdscr, "New month:", 1, 12)
+            newDAY = getInt(stdscr, "New day:", 0, 31)
             stdscr.addstr(maxy - 1, 0, " " * (maxx - 1))
-            stdscr.addstr(maxy - 1, 0, "New MINUTES (MM): ")
-            newMINS = int(stdscr.getstr(maxy - 1, 18, 30))
-            stdscr.addstr(maxy - 1, 0, " " * (maxx - 1))
-            newhours = newHOURS * 3600 + newMINS * 60
-            stdscr.addstr(maxy - 1, 0, "New year (YYYY): ")
-            newYEAR = int(stdscr.getstr(maxy - 1, 17, 30))
-            stdscr.addstr(maxy - 1, 0, " " * (maxx - 1))
-            stdscr.addstr(maxy - 1, 0, "New month: ")
-            newMONTH = int(stdscr.getstr(maxy - 1, 11, 30))
-            stdscr.addstr(maxy - 1, 0, " " * (maxx - 1))
-            stdscr.addstr(maxy - 1, 0, "New day: ")
-            newDAY = int(stdscr.getstr(maxy - 1, 9, 30))
-            stdscr.addstr(maxy - 1, 0, " " * (maxx - 1))
-            newdate = "{0:02}-{1:02}-{2:02}".format(newYEAR, newMONTH, newDAY)
-            addToTimesheet(timesheet, jobname, newdate, newhours, pynchdb)
+            newTIME = newHOURS * 3600 + newMINS * 60
+            newDATE = "{0:02}-{1:02}-{2:02}".format(newYEAR, newMONTH, newDAY)
+            addToTimesheet(timesheet, jobname, newDATE, newTIME, pynchdb)
             sortTimesheet(timesheet, jobname)
             restartScreen()
 
@@ -265,8 +249,7 @@ def eventLoopTimesheet(timesheet, clock, jobname, stdscr, start, pynchdb):
 
         elif c == ord('I'):
             pauseScreen()
-            stdscr.addstr(maxy-1, 0, "Timesheet source file: ")
-            infile = stdscr.getstr(maxy - 1, 25, 90)
+            infile = getString(stdscr, "Timesheet source file:", 90)
             readTimesheetCSV(infile, timesheet, jobname, pynchdb)
             restartScreen()
 
