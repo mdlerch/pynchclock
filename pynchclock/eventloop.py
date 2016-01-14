@@ -85,7 +85,9 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
             if selected != "None":
                 start = updateClock(clock, start, pynchdb)
                 if selected in timesheet.keys():
+                    stdscr.clear()
                     displayStats(timesheet, clock, selected, stdscr)
+                    stdscr.clear()
                 else:
                     message = "No stats on " + selected
                 start = updateClock(clock, start, pynchdb)
@@ -144,7 +146,9 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
         elif c == ord('T'):
             if selected != "None":
                 start = updateClock(clock, start, pynchdb)
+                stdscr.clear()
                 eventLoopTimesheet(timesheet, clock, selected, stdscr, start, pynchdb)
+                stdscr.clear()
                 restartScreen()
                 start = updateClock(clock, start, pynchdb)
 
@@ -259,7 +263,9 @@ def eventLoopTimesheet(timesheet, clock, jobname, stdscr, start, pynchdb):
         # Show job stats
         elif c == ord('V'):
             if jobname in timesheet.keys():
+                stdscr.clear()
                 displayStats(timesheet, clock, jobname, stdscr)
+                stdscr.clear()
             else:
                 message = "No stats on " + selected
 

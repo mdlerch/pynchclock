@@ -36,8 +36,6 @@ def displayStats(timesheet, clock, jobname, stdscr):
         # subtract 14 for room for date
         scale = (maxx - 14.0) / maxtime
 
-        stdscr.clear()
-
         h = math.floor(maxtime / 3600)
         m = math.floor((maxtime - h * 3600) / 60)
 
@@ -47,9 +45,10 @@ def displayStats(timesheet, clock, jobname, stdscr):
         # print current hours
         # subtract 11 for date info
         nplot = int(round(clock['hours'][jobname] * scale))
+        nblank = max(maxx - nplot - 14, 0)
         today = datetime.datetime.now()
         todaydate = today.strftime("%Y-%m-%d")
-        plotstring = "({0}) ".format(todaydate) + "=" * nplot
+        plotstring = "({0}) ".format(todaydate) + "=" * nplot + " " * nblank
         if selected == 0:
             stdscr.addstr(1, 0, plotstring, curses.A_REVERSE)
         else:
@@ -62,7 +61,8 @@ def displayStats(timesheet, clock, jobname, stdscr):
             jobhours = timesheet[jobname]['hours'][-i]
             jobdate = timesheet[jobname]['date'][-i]
             nplot = int(round(jobhours * scale))
-            plotstring = " {0}  ".format(jobdate) + "=" * nplot
+            nblank = max(maxx - nplot - 14, 0)
+            plotstring = " {0}  ".format(jobdate) + "=" * nplot + " " * nblank
             if i == selected:
                 stdscr.addstr(row, 0, plotstring, curses.A_REVERSE)
             else:

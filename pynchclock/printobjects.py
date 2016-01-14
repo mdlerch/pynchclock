@@ -16,7 +16,6 @@ def restartScreen():
 
 
 def printClock(clock, stdscr, selected):
-    stdscr.clear()
     job_name_length = []
     for job in clock['order']:
         job_name_length.append(len(job))
@@ -58,7 +57,6 @@ def printClock(clock, stdscr, selected):
     stdscr.refresh()
 
 def printTimesheet(timesheet, clock, jobname, selected, first, stdscr):
-    stdscr.clear()
 
     # dates[-last] is the oldest date to display
     # dates[-first] is the most recent date to display
