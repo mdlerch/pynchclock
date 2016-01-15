@@ -54,6 +54,10 @@ def printClock(clock, stdscr, selected):
 
         i += 1
 
+    for i in range(len(clock['order']), maxy - 1):
+        string = " " * (maxx - 1)
+        stdscr.addstr(i, 0, string)
+
     stdscr.refresh()
 
 def printTimesheet(timesheet, clock, jobname, selected, first, stdscr):
