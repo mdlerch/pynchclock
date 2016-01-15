@@ -19,13 +19,16 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
         printClock(clock, stdscr, selected)
 
         if message:
+            newmess = message + " " * (maxx - 1 - len(message))
             stdscr.addstr(maxy - 1, 0, message)
             icon_shift = 2
 
         if clock['current'] == "None":
-            stdscr.addstr(maxy - icon_shift, 0, "||")
+            icon = "||" + " " * (maxx - 1 - 2)
+            stdscr.addstr(maxy - icon_shift, 0, icon)
         else:
-            stdscr.addstr(maxy - icon_shift, 0, "> " + clock['current'])
+            icon = "> " + clock['current'] + " " * (maxx - 1 - 2 - len(clock['current']))
+            stdscr.addstr(maxy - icon_shift, 0, icon)
 
         message = None
         icon_shift = 1
