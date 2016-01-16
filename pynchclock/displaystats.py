@@ -18,8 +18,6 @@ def displayStats(timesheet, clock, jobname, stdscr):
     if checkWindowSize(stdscr, 10, 5):
         return
 
-
-
     while 1:
 
         if ndates > maxy - 2:
@@ -28,7 +26,10 @@ def displayStats(timesheet, clock, jobname, stdscr):
             first = 1
             last = ndates
         if first != last:
-            maxtime = max(timesheet[jobname]['hours'][-last:-first])
+            if first == 1:
+                maxtime = max(timesheet[jobname]['hours'][-last:])
+            else:
+                maxtime = max(timesheet[jobname]['hours'][-last:-(first - 1)])
         else:
             maxtime = timesheet[jobname]['hours'][0]
         maxtime = max(maxtime, clock['hours'][jobname])
