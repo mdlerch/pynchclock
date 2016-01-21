@@ -193,11 +193,11 @@ def eventLoopTimesheet(timesheet, clock, jobname, stdscr, start, pynchdb):
 
         first, last, ndates = printTimesheet(timesheet, clock, jobname, selected, first, stdscr)
 
+        # message = "{0}, {1}, {2}     ".format(first, last, selected)
         if message:
             stdscr.addstr(maxy - 1, 0, message)
 
         message = None
-        # message = "{0}, {1}, {2}".format(first, last, ndates)
 
         c = stdscr.getch()
 
@@ -230,11 +230,11 @@ def eventLoopTimesheet(timesheet, clock, jobname, stdscr, start, pynchdb):
 
         elif c == ord('E'):
             pauseScreen()
-            if -selected > 0:
+            if selected > 0:
                 newHOURS = getInt(stdscr, "New hours (HH):", 0, 24)
                 newMINS = getInt(stdscr, "New minutes (MM):", 0, 60)
                 newTIME = newHOURS * 3600 + newMINS * 60
-                idx = ndates + selected
+                idx = ndates - selected
                 date = timesheet[jobname]['date'][idx]
                 editTimesheet(timesheet, jobname, date, newTIME, pynchdb)
             if selected == 0:
