@@ -81,6 +81,15 @@ def eventLoopClock(clock, timesheet, stdscr, pynchdb, savefile):
             addToClock(clock, stdscr, selected, pynchdb)
             restartScreen()
 
+        # Edit clock
+        elif c == ord('E'):
+            pauseScreen()
+            newHOURS = getInt(stdscr, "New hours (HH):", 0, 24)
+            newMINS = getInt(stdscr, "New minutes (MM)", 0, 60)
+            newTIME = newHOURS * 3600 + newMINS * 60
+            editClock(clock, selected, newTIME, pynchdb)
+            restartScreen()
+
         # Delete a job
         elif c == ord('D'):
             pauseScreen()
@@ -243,6 +252,7 @@ def eventLoopTimesheet(timesheet, clock, jobname, stdscr, start, pynchdb):
                 newTIME = newHOURS * 3600 + newMINS * 60
                 editClock(clock, jobname, newTIME, pynchdb)
             restartScreen()
+
         elif c == ord('A'):
             pauseScreen()
             newHOURS = getInt(stdscr, "New hours (HH):", 0, 24)
